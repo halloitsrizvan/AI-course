@@ -3,7 +3,7 @@ const express = require('express')
 const mongoose = require('mongoose')
 const cors = require('cors')
 
-const port = process.env.PORT
+const port = process.env.PORT  || 4000
 const mongoDB = process.env.MONGO_URL
 const usersRoutes = require('./routes/user')
 
@@ -18,7 +18,7 @@ app.use((req,res,next)=>{
     next(); 
 })
 
-app.use('/users',usersRoutes)
+app.use('/users',usersRoutes) 
 
 mongoose.connect(mongoDB)
     .then(()=>{

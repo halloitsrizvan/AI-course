@@ -84,9 +84,11 @@ function ShoppingCart() {
                     
                     {/* Left Column: Cart Items List */}
                     <div className="lg:col-span-2">
-                        <p className="text-lg font-bold text-gray-700 mb-6">{CART_ITEMS.length} Courses in Cart</p>
+                        {/* <p className="text-lg font-bold text-gray-700 mb-6">{CART_ITEMS.length} Parts in this Course</p> */}
+                        <p className="text-lg font-bold text-gray-700 mb-6">Payment Method</p>
                         <div className='divide-y divide-gray-200'>
-                            {CART_ITEMS.map(item => <CartItem key={item.id} item={item} />)}
+                            {/* {CART_ITEMS.map(item => <CartItem key={item.id} item={item} />)} */}
+
                         </div>
                     </div>
 

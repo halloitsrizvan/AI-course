@@ -7,28 +7,28 @@ function Contents() {
           title: "Full Stack Web Developer",
           rating: 4.7,
           reviews: "45,806 ratings",
-          students: "87,138 total hours",
+          totalLength: "1.2 Hours",
           imageUrl: "https://placehold.co/300x200/f59e0b/ffffff?text=Web+Dev"
         },
         {
           title: "Digital Marketer",
           rating: 4.5,
           reviews: "3,951 ratings",
-          students: "29,401 total hours",
+          totalLength: "2.2 Hours",
           imageUrl: "https://placehold.co/300x200/ec4899/ffffff?text=Marketing"
         },
         {
           title: "Data Scientist",
           rating: 4.6,
           reviews: "23,071 ratings",
-          students: "47,677 total hours",
+          totalLength: "1.6 Hours",
           imageUrl: "https://placehold.co/300x200/8b5cf6/ffffff?text=Data+Sci"
         },
         {
           title: "Business Analyst",
           rating: 4.4,
           reviews: "15,122 ratings",
-          students: "33,000 total hours",
+          totalLength: "2.8 Hours",
           imageUrl: "https://placehold.co/300x200/06b6d4/ffffff?text=Business"
         },
       ];

@@ -3,11 +3,7 @@ import {StarIcon,InfoIcon,DecorativeCodeIcon} from '../../Icons'
 import { Star, Info, Users } from 'lucide-react'; 
 import { useNavigate } from 'react-router-dom';
 function CourseHeader() {
-    const COURSE_STATS = [
-        { value: '4.7', label: 'average course rating', icon: StarIcon },
-        { value: '126', label: 'practice exercises', icon: InfoIcon },
-        { value: '87.8', label: 'hours of content', icon: InfoIcon },
-      ];
+
 
       const courseData = {
         title: 'Full Stack Web Developer Career Accelerator',

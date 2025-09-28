@@ -1,7 +1,7 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom';
 
-function CourseCard({ title, rating, reviews, students, imageUrl }) {
+function CourseCard({ title, rating, reviews, totalLength, imageUrl }) {
   const navigate = useNavigate()
   return (
     <div className="flex flex-col bg-white rounded-xl shadow-lg hover:shadow-xl transition duration-300 overflow-hidden cursor-pointer"
@@ -27,7 +27,7 @@ function CourseCard({ title, rating, reviews, students, imageUrl }) {
           {rating} 
           <span className="ml-1 text-xs text-gray-500 font-normal">({reviews})</span>
         </div>
-        <p className="text-gray-500">{students}</p>
+        <p className="text-gray-500">{totalLength}</p>
       </div>
     </div>
   </div>
