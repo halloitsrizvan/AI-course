@@ -4,7 +4,7 @@ function VideoPlayer({ currentLesson }) {
     const videoUrl = `https://www.youtube.com/embed/${currentLesson.videoId}?autoplay=1&rel=0&modestbranding=1`;
 
   return (
-    <div className="relative w-full aspect-video bg-gray-900">
+    <div className="relative w-full aspect-video bg-gray-900  ">
       {/* YouTube Iframe */}
       <iframe
         className="w-full h-full"

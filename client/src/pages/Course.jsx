@@ -25,6 +25,7 @@ function Course() {
     { id: 7, part: 4, title: 'Loops: FOR Loop', completed: false, videoId: 'M7lc1UVf-VE', description: 'Master iteration and repetitive tasks using the powerful FOR loop structure.' },
     { id: 8, part: 5, title: 'Array and Array Operations', completed: false, videoId: 'M7lc1UVf-VE', description: 'Understanding arrays and how to perform basic and advanced operations on them.' },
     { id: 9, part: 6, title: 'Functions and Type of Functions', completed: false, videoId: 'M7lc1UVf-VE', description: 'Explore defining and calling functions, and the different types used in C.' },
+    
   ];
   
   // State to track which lesson is currently being viewed (defaults to the first lesson)
