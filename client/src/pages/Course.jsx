@@ -1,4 +1,4 @@
-import React from 'react'
+import React,{useState} from 'react'
 import CourseSidebar from '../components/course/CourseSidebar';
 import VideoPlayer from '../components/course/VideoPlayer';
 import LessonDetails from '../components/course/LessonDetails';
@@ -6,7 +6,7 @@ function Course() {
 
   const course = {
     title: '100K Coding Challenge',
-    progress: 22, // Set a mock progress value for demonstration
+    progress: 22, 
   };
   
 
@@ -28,7 +28,7 @@ function Course() {
   ];
   
   // State to track which lesson is currently being viewed (defaults to the first lesson)
-  const [currentLessonId, setCurrentLessonId] = React.useState(lessons[0].id);
+  const [currentLessonId, setCurrentLessonId] = useState(lessons[0].id);
   
   // Find the full lesson object based on the current ID
   const currentLesson = lessons.find(l => l.id === currentLessonId);
