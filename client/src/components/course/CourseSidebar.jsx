@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { PlayCircle, CheckCircle, Menu, X } from 'lucide-react';
+import { PlayCircle, CheckCircle, Menu, X, HelpCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-function CourseSidebar({ course, lessons, currentLessonId, onLessonClick }) {
+function CourseSidebar({ course, lessons, currentLessonId, onLessonClick, onQuizClick }) {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -21,11 +21,12 @@ function CourseSidebar({ course, lessons, currentLessonId, onLessonClick }) {
         className={`fixed top-0 left-0 h-screen w-64 bg-black text-white transform transition-transform duration-300 z-30 lg:translate-x-0 lg:w-80 lg:top-0 lg:left-0 lg:h-screen lg:fixed
           ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
-        <div className="p-4">
+        <div className="flex flex-col h-full p-4">
           <div className="cursor-pointer mb-6" onClick={() => navigate('/')}> 
             <h1 className="text-xl font-bold text-gray-100">COURSE</h1>
             <p className="text-xs text-purple-400 mb-4">BROTHER YOU NEVER HAD</p>
           </div>
+
           <h2 className="text-lg font-semibold mb-2">{course.title}</h2>
 
           {/* Progress Bar */}
@@ -38,16 +39,15 @@ function CourseSidebar({ course, lessons, currentLessonId, onLessonClick }) {
           <p className="text-sm text-gray-400 mb-4">{course.progress}% Complete</p>
 
           {/* Lesson List */}
-          <nav>
+          <nav className="flex-grow overflow-y-auto">
             {lessons.map((lesson) => {
               const isCurrent = lesson.id === currentLessonId;
               return (
-              <>
                 <div
                   key={lesson.id}
                   onClick={() => {
                     onLessonClick(lesson.id);
-                    setIsOpen(false); // close sidebar on mobile after selecting
+                    setIsOpen(false);
                   }}
                   className={`flex items-center p-3 my-1 rounded-lg cursor-pointer transition duration-200 
                     ${isCurrent ? 'bg-purple-700 text-white font-semibold shadow-lg' : 'hover:bg-gray-800 text-gray-300'}`}
@@ -59,17 +59,25 @@ function CourseSidebar({ course, lessons, currentLessonId, onLessonClick }) {
                       className={`w-5 h-5 mr-3 ${isCurrent ? 'text-white' : 'text-gray-500'}`}
                     />
                   )}
-
                   <span className={`text-sm ${isCurrent ? 'text-white' : 'text-gray-300'}`}>
                     Part {lesson.part} | {lesson.title}
-                   
                   </span>
                 </div>
-
-                </>
               );
             })}
           </nav>
+
+          {/* Quiz Option at the Bottom */}
+          <div
+            onClick={() => {
+              onQuizClick();
+              setIsOpen(false);
+            }}
+            className="flex items-center p-3 mt-4 rounded-lg cursor-pointer transition duration-200 bg-gray-800 hover:bg-purple-700 text-gray-200 hover:text-white"
+          >
+            <HelpCircle className="w-5 h-5 mr-3" />
+            <span className="text-sm font-medium">Final Quiz</span>
+          </div>
         </div>
       </div>
 

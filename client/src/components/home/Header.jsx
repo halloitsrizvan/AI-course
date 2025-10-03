@@ -1,13 +1,15 @@
 import React, { use, useState } from 'react';
 import {SearchIcon,ShoppingCartIcon,XIcon,MenuIcon} from '../../Icons'
 import { useNavigate } from 'react-router-dom';
-
+import axios from 'axios'
 
 
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const closeMenu = () => setIsMenuOpen(false);
 const navigate = useNavigate()
+const token = localStorage.getItem("token")
+  const user = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : null;
   return (
     <>
      <header className="border-b shadow-sm sticky top-0 bg-white z-20 font-inter">
@@ -61,10 +63,14 @@ const navigate = useNavigate()
 
 
           {/* Desktop/Tablet Buttons */}
-          <button className="hidden md:block border border-gray-800 text-gray-800 px-4 py-2 text-sm font-semibold rounded-lg hover:bg-gray-100 transition duration-150">
+          <button
+          onClick={()=>navigate('/login')}
+          className="hidden md:block border border-gray-800 text-gray-800 px-4 py-2 text-sm font-semibold rounded-lg hover:bg-gray-100 transition duration-150">
             Log in
           </button>
-          <button className="hidden md:block bg-purple-700 text-white px-4 py-2 text-sm font-semibold rounded-lg hover:bg-purple-800 transition duration-150">
+          <button
+          onClick={()=>navigate('/signup')}
+          className="hidden md:block bg-purple-700 text-white px-4 py-2 text-sm font-semibold rounded-lg hover:bg-purple-800 transition duration-150">
             Sign up
           </button>
         </div>
