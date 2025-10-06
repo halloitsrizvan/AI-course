@@ -4,6 +4,7 @@ import Banner from '../components/home/Banner';
 import Contents from '../components/home/Contents';
 import TestimonialsSection from '../components/home/TestimonialsSection';
 import Footer from '../components/home/Footer';
+import FirstContent from '../components/home/FirstContent';
 function Home() {
   return (
     <div className='min-h-screen bg-cover bg-no-repeat bg-center'  style={{backgroundImage:"url('images/Desktop - 2.jpg')"}} >
@@ -14,6 +15,7 @@ function Home() {
 
         <Header/>
         <Banner/>
+        <FirstContent/>
         <Contents/>
         <TestimonialsSection/>
         <Footer/>

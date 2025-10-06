@@ -10,6 +10,20 @@ function Header() {
 const navigate = useNavigate()
 const token = localStorage.getItem("token")
   const user = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : null;
+
+     const handleLearnMoreClick = () => {
+    const section = document.getElementById("contents-section");
+    if (section) {
+      section.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+   const handleLogout = ()=>{
+      localStorage.removeItem('token')
+      localStorage.removeItem('user')
+      navigate('/login')
+    }
+
   return (
     <>
      <header className="border-b shadow-sm sticky top-0 bg-white z-20 font-inter">
@@ -48,7 +62,7 @@ const token = localStorage.getItem("token")
         {/* Right Section (Buttons and Cart) */}
         <div className="flex items-center space-x-3 sm:space-x-4">
           <a href="#" className="hidden lg:block text-sm text-gray-500 hover:text-gray-900 transition duration-150" onClick={()=>navigate('/')}>Home</a>
-          <a href="#" className="hidden lg:block text-sm text-gray-500 hover:text-gray-900 transition duration-150">Udemy Business</a>
+          <a href="#" className="hidden lg:block text-sm text-gray-500 hover:text-gray-900 transition duration-150" onClick={()=>handleLearnMoreClick()}>Courses</a>
           <a href="#" className="hidden sm:block text-sm text-gray-500 hover:text-gray-900 transition duration-150">Teach on Course</a>
           
           {/* Cart Icon */}
@@ -62,17 +76,32 @@ const token = localStorage.getItem("token")
           </button>
 
 
-          {/* Desktop/Tablet Buttons */}
-          <button
+          
+          {!user && <button
           onClick={()=>navigate('/login')}
           className="hidden md:block border border-gray-800 text-gray-800 px-4 py-2 text-sm font-semibold rounded-lg hover:bg-gray-100 transition duration-150">
             Log in
-          </button>
-          <button
+          </button>}
+         {!user && <button
           onClick={()=>navigate('/signup')}
           className="hidden md:block bg-purple-700 text-white px-4 py-2 text-sm font-semibold rounded-lg hover:bg-purple-800 transition duration-150">
             Sign up
+          </button>}
+
+          {user &&
+          <button
+          onClick={()=>navigate('/profile')}
+          className="hidden md:block bg-purple-700 text-white px-4 py-2 text-sm font-semibold rounded-lg hover:bg-purple-800 transition duration-150">
+            {user.name}
           </button>
+          }
+
+             {user && <button
+          onClick={()=>handleLogout()}
+          className="hidden md:block border border-gray-800 text-gray-800 px-4 py-2 text-sm font-semibold rounded-lg hover:bg-gray-100 transition duration-150">
+            Logout
+          </button>}
+
         </div>
       </div>
    

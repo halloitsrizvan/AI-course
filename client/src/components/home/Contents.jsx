@@ -35,7 +35,7 @@ function Contents() {
 
       
   return (
-    <div className="max-w-7xl mx-auto my-16 px-4">
+    <div id="contents-section" className="max-w-7xl mx-auto   px-4" style={({marginTop: '-6rem'} )}>
     <div className="mb-8">
       <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900">
         Ready to reimagine your career?

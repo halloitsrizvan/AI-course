@@ -80,11 +80,11 @@ function CurriculumCard() {
                     <div className='border-t pt-4 space-y-2'>
                         <div className='flex items-center text-sm font-semibold text-gray-700'>
                              <img 
-                                src="https://placehold.co/30x30/f0ab00/ffffff?text=AY" 
+                                src="https://placehold.co/30x30/f0ab00/ffffff?text=RW" 
                                 alt="Instructor" 
                                 className="w-6 h-6 rounded-full mr-2"
                             />
-                            Dr. Angela Yu, Developer and Lead Instructor
+                           Mr. Rizwin
                         </div>
                         <div className="flex items-center text-xs text-gray-600 space-x-3">
                             <span className='flex items-center'>
@@ -92,7 +92,7 @@ function CurriculumCard() {
                             </span>
                             <span>(663,304 ratings)</span>
                             <span>61.5 total hours</span>
-                            <span>374 lectures</span>
+                           
                         </div>
                         <p className="text-xs font-semibold text-gray-700 mt-2">
                             ₹3,109
