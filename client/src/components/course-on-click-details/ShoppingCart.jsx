@@ -79,7 +79,7 @@ function ShoppingCart() {
     // Handler for the main Whatsapp button
     const handleWhatsappContact = () => {
         // Mock WhatsApp link (replace with actual number/message)
-        const whatsappUrl = "https://wa.me/7736546898?text=I%20want%20to%20purchase%20the%20Full%20Stack%20Web%20Accelerator%20Course%20for%20₹10%2C397.";
+        const whatsappUrl = "https://wa.me/8921342964?text=I%20want%20to%20purchase%20the%20Full%20Stack%20Web%20Accelerator%20Course%20for%20₹10%2C397.";
         window.open(whatsappUrl, '_blank');
     };
     
