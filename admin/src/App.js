@@ -1,52 +1,64 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route, NavLink } from "react-router-dom";
 import {BookOpen,UploadCloud,Users,LayoutDashboard,Tag,LogOut,Search,} from "lucide-react";
-
 import DashboardView from "./componenets/DashboardView";
 import CoursesView from "./componenets/CoursesView";
 import UsersView from "./componenets/UsersView";
 import CourseForm from "./componenets/CourseForm";
 import CouponManageView from "./pages/CouponManageView";
+import axios from "axios";
+
 
 // Example mock data
-const mockCourses = [
-  { id: 1, title: "Web Development", students: 1240, rating: 4.8, status: 'Active' },
-  { id: 2, title: "Web Design (UI/UX)", students: 980, rating: 4.5, status: 'Active' },
-  { id: 3, title: "Prompt Engineering", students: 2100, rating: 4.9, status: 'Active' },
-  { id: 4, title: "AI and ML Fundamentals", students: 1550, rating: 4.7, status: 'Archived' },
-  { id: 5, title: "AI History & Ethics", students: 720, rating: 4.6, status: 'Active' },
-];
 
-const mockUsers = [
-  { id: 'usr-1001', name: 'Alice Johnson', email: 'alice@example.com', joined: '2023-01-15', coursesEnrolled: 3 },
-  { id: 'usr-1002', name: 'Bob Smith', email: 'bob@example.com', joined: '2023-02-20', coursesEnrolled: 1 },
-  { id: 'usr-1003', name: 'Charlie Brown', email: 'charlie@example.com', joined: '2023-03-01', coursesEnrolled: 5 },
-  { id: 'usr-1004', name: 'Diana Prince', email: 'diana@example.com', joined: '2023-04-10', coursesEnrolled: 2 },
-];
-
-const totalUsers = mockUsers.length;
-const totalCourses = mockCourses.length;
-const totalEnrollments = mockCourses.reduce((sum, course) => sum + course.students, 0);
-
-// Reusable Nav Item Component
-const NavItem = ({ icon: Icon, title, to }) => (
-  <NavLink
-    to={to}
-    className={({ isActive }) =>
-      `flex items-center space-x-3 p-3 rounded-xl transition-colors w-full text-left ${
-        isActive
-          ? "bg-indigo-700 text-white"
-          : "text-indigo-200 hover:bg-indigo-700 hover:text-white"
-      }`
-    }
-  >
-    <Icon className="w-5 h-5" />
-    <span className="font-medium">{title}</span>
-  </NavLink>
-)
 function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [courses, setCourses] = useState([]);
+  useEffect(()=>{
+    axios.get(`http://localhost:4000/courses`)
+    .then(response=>{
+      setCourses(response.data)
+    })
+    .catch(error=>{
+      alert('There was an error fetching the courses!',error)
+    })
+  },[])
 
+  const mockCourses = [
+    { id: 1, title: "Web Development", students: 1240, rating: 4.8, status: 'Active' },
+    { id: 2, title: "Web Design (UI/UX)", students: 980, rating: 4.5, status: 'Active' },
+    { id: 3, title: "Prompt Engineering", students: 2100, rating: 4.9, status: 'Active' },
+    { id: 4, title: "AI and ML Fundamentals", students: 1550, rating: 4.7, status: 'Archived' },
+    { id: 5, title: "AI History & Ethics", students: 720, rating: 4.6, status: 'Active' },
+  ];
+  
+  const mockUsers = [
+    { id: 'usr-1001', name: 'Alice Johnson', email: 'alice@example.com', joined: '2023-01-15', coursesEnrolled: 3 },
+    { id: 'usr-1002', name: 'Bob Smith', email: 'bob@example.com', joined: '2023-02-20', coursesEnrolled: 1 },
+    { id: 'usr-1003', name: 'Charlie Brown', email: 'charlie@example.com', joined: '2023-03-01', coursesEnrolled: 5 },
+    { id: 'usr-1004', name: 'Diana Prince', email: 'diana@example.com', joined: '2023-04-10', coursesEnrolled: 2 },
+  ];
+  
+  const totalUsers = mockUsers.length;
+  const totalCourses = courses.length;
+  const totalEnrollments = "Not Set"
+  
+  // Reusable Nav Item Component
+  const NavItem = ({ icon: Icon, title, to }) => (
+    <NavLink
+      to={to}
+      className={({ isActive }) =>
+        `flex items-center space-x-3 p-3 rounded-xl transition-colors w-full text-left ${
+          isActive
+            ? "bg-indigo-700 text-white"
+            : "text-indigo-200 hover:bg-indigo-700 hover:text-white"
+        }`
+      }
+    >
+      <Icon className="w-5 h-5" />
+      <span className="font-medium">{title}</span>
+    </NavLink>
+  )
   return (
     <Router>
       <div className="min-h-screen bg-gray-50 flex">
@@ -116,7 +128,7 @@ function App() {
               path="/dashboard"
               element={
                 <DashboardView
-                  courses={mockCourses}
+                  courses={courses}
                   users={mockUsers}
                   totalEnrollments={totalEnrollments}
                 />
@@ -124,7 +136,7 @@ function App() {
             />
             <Route
               path="/courses"
-              element={<CoursesView courses={mockCourses} />}
+              element={<CoursesView courses={courses} />}
             />
             <Route
               path="/add-course"
@@ -137,7 +149,7 @@ function App() {
               path="*"
               element={
                 <DashboardView
-                  courses={mockCourses}
+                  courses={courses}
                   users={mockUsers}
                   totalEnrollments={totalEnrollments}
                 />

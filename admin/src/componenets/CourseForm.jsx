@@ -1,7 +1,12 @@
 import React, { useState } from "react";
 import { UploadCloud, Plus, X } from "lucide-react";
-const axios = require("axios")
+import axios from "axios"
+import {useNavigate} from 'react-router-dom'
+
 const CourseForm = ({ setActiveView }) => {
+
+  const [load,setLoad] = useState(false)
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -170,12 +175,17 @@ const CourseForm = ({ setActiveView }) => {
     setFormData({ ...formData, quizQuestions: updated });
   };
 
+  const navigate = useNavigate()
   const handleSubmit = (e) => {
     e.preventDefault();
+    setLoad(true)
    try{
-    axios.post('http://localhost:4000/courses',formData)
+    axios.post(`http://localhost:4000/courses`,formData)
+    setLoad(false)
+    navigate('/courses')
    }catch(err){
     console.log(err);
+    setLoad(false)
    }
   };
 

@@ -8,11 +8,11 @@ function CourseCard({ course }) {
         </div>
         <h3 className="text-lg font-semibold text-gray-800">{course.title}</h3>
         <p className="text-sm text-gray-600 mt-1">
-            <span className="font-bold text-yellow-600">{course.rating} ★</span> ({course.students.toLocaleString()} students)
+            <span className="font-bold text-yellow-600">{course.createdBy}★</span> ({course.enrollment.toLocaleString()} students)
         </p>
         <div className="mt-3 flex justify-between items-center">
-            <span className={`text-xs font-medium px-3 py-1 rounded-full ${course.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
-                {course.status}
+            <span className={`text-xs font-medium px-3 py-1 rounded-full ${course.status? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                {course.published? 'Published' : 'Pending'}
             </span>
             <button className="text-sm text-indigo-600 hover:text-indigo-800 font-medium">
                 Edit

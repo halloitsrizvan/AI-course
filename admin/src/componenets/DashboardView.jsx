@@ -7,9 +7,9 @@ import { LayoutDashboard, Users, BookOpen, UploadCloud, LogOut, Search, Clock, Z
   
 
 function DashboardView({ courses, users, totalEnrollments }) {
-    const bestCourses = [...courses].sort((a, b) => b.students - a.students).slice(0, 5);
+    const bestCourses = [...courses].sort((a, b) => b.enrollment - a.enrollment).slice(0, 5);
     const totalCourses =courses.length;
-    const maxStudents = bestCourses[0]?.students || 1;
+    const maxStudents = 10 ;//Setted a test value
   
     return (
       <div className="space-y-8">
@@ -35,11 +35,11 @@ function DashboardView({ courses, users, totalEnrollments }) {
                 <div
                   className="w-full bg-indigo-500 rounded-t-lg transition-all duration-300 hover:bg-indigo-600 relative shadow-md"
                   // Ensure bars start from the bottom and have a min height of 10%
-                  style={{ height: `${(course.students / maxStudents) * 90 + 10}%` }}
+                  style={{ height: `${(course.enrollment / maxStudents) * 90 + 10}%` }}
                 >
                   {/* Data Label (Tooltip style on hover) */}
                   <div className="absolute -top-6 w-full text-center text-xs font-bold text-indigo-700 bg-indigo-100 p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                    {course.students} students
+                    {course.enrollment} students
                   </div>
                 </div>
                 
@@ -62,14 +62,14 @@ function DashboardView({ courses, users, totalEnrollments }) {
                           <BookOpen className="w-5 h-5 text-blue-600 mr-3" />
                           <span className="font-medium text-gray-700">Active Courses</span>
                       </div>
-                      <span className="text-lg font-bold text-blue-700">{courses.filter(c => c.status === 'Active').length}</span>
+                      <span className="text-lg font-bold text-blue-700">{courses.filter(c => c.published).length}</span>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
                       <div className="flex items-center">
                           <Clock className="w-5 h-5 text-yellow-600 mr-3" />
                           <span className="font-medium text-gray-700">Archived Courses</span>
                       </div>
-                      <span className="text-lg font-bold text-yellow-700">{courses.filter(c => c.status === 'Archived').length}</span>
+                      <span className="text-lg font-bold text-yellow-700">{courses.filter(c => !c.published).length}</span>
                   </div>
               </div>
           </div>

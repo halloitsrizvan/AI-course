@@ -7,13 +7,7 @@ const initialCoupons = [
     { id: 3, code: 'WELCOME50USD', discount: 50, expiry: '2026-03-01', type: 'Fixed' },
   ];
   
-  const mockCourses = [
-    { id: 1, title: "Web Development", students: 1240, rating: 4.8, status: 'Active' },
-    { id: 2, title: "Web Design (UI/UX)", students: 980, rating: 4.5, status: 'Active' },
-    { id: 3, title: "Prompt Engineering", students: 2100, rating: 4.9, status: 'Active' },
-    { id: 4, title: "AI and ML Fundamentals", students: 1550, rating: 4.7, status: 'Archived' },
-    { id: 5, title: "AI History & Ethics", students: 720, rating: 4.6, status: 'Active' },
-  ];
+
   
   const mockUsers = [
     { id: 'usr-1001', name: 'Alice Johnson', email: 'alice@example.com', joined: '2023-01-15', coursesEnrolled: 3 },
@@ -23,9 +17,7 @@ const initialCoupons = [
   ];
   
   const totalUsers = mockUsers.length;
-  const totalCourses = mockCourses.length;
-  const totalEnrollments = mockCourses.reduce((sum, course) => sum + course.students, 0);
-  
+ 
   // Mock admin password for client-side demo
   const ADMIN_PASSWORD = 'ADMINPASS';
 function CouponManageView() {

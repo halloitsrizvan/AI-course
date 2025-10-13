@@ -1,6 +1,6 @@
 import React from 'react'
 import CourseCard from './CourseCard'
-import { LayoutDashboard, Users, BookOpen, UploadCloud, LogOut, Search, Clock, Zap, MessageCircle, Copy, Trash2, Key, Tag } from 'lucide-react';
+import {UploadCloud } from 'lucide-react';
 
 function CoursesView({ courses, setActiveView }) {
   return (
