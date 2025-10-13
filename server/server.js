@@ -5,8 +5,9 @@ const cors = require('cors')
 
 const port = process.env.PORT  || 4000
 const mongoDB = process.env.MONGO_URL
-const usersRoutes = require('./routes/user')
 
+const usersRoutes = require('./routes/user')
+const coursesRoutes = require('./routes/courseRoutes')
 
 const app = express();
 app.use(cors())
@@ -19,7 +20,7 @@ app.use((req,res,next)=>{
 })
 
 app.use('/users',usersRoutes) 
-
+app.use('/courses',coursesRoutes)
 mongoose.connect(mongoDB)
     .then(()=>{
         app.listen(port,(req,res)=>{

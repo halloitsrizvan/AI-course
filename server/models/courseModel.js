@@ -10,7 +10,13 @@ const CourseSchema = new Schema({
         type: String,
         required: true
     },
-    buttonText: {
+    exercises: {
+        type: String
+    },
+    hours:{
+        type: String
+    },
+    enrollment: {
         type: String
     },
     price: {    
@@ -21,6 +27,14 @@ const CourseSchema = new Schema({
         type: String,   
         required: true
     },
+    imageUrl2: {
+        type: String,   
+        required: true
+    },
+    createdBy: {
+        type: String,   
+        required: true
+    },
     totalLength: {
         type: String,   
         required: true
@@ -28,7 +42,47 @@ const CourseSchema = new Schema({
     published: {
         type: Boolean,
         default: false
-    }
+    },
+    whatYoullLearn:[
+        {
+            number: Number,
+            title: String,
+            description: String,
+            link: String
+        }
+    ],
+    skillsThatMatter:[
+        {
+             name: String 
+        }
+    ],
+    curriculumCard: [
+        {
+            number: Number,
+            title: String,
+            topics: [String]
+        }
+    ],
+    course:[
+        {
+            part: Number,
+            lessons: [
+                {
+                    title: String,
+                    videoId: String,
+                    description: String,
+                    keyNotes: String
+                }
+            ]
+        }
+    ],
+    quizQuestions: [
+        {
+            question: String,
+            options: [String],
+            correctAnswer: String
+        }
+    ]
 }, { timestamps: true })    
 
 module.exports = mongoose.model('Course', CourseSchema);    
