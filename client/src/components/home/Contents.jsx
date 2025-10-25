@@ -1,58 +1,47 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import CourseCard from '../course details/CourseCard';
+import axios from 'axios';
 
 function Contents() {
-    const COURSES = [
-        {
-          title: "Full Stack Web Developer",
-          rating: 4.7,
-          reviews: "45,806 ratings",
-          totalLength: "1.2 Hours",
-          imageUrl: "https://placehold.co/300x200/f59e0b/ffffff?text=Web+Dev"
-        },
-        {
-          title: "Digital Marketer",
-          rating: 4.5,
-          reviews: "3,951 ratings",
-          totalLength: "2.2 Hours",
-          imageUrl: "https://placehold.co/300x200/ec4899/ffffff?text=Marketing"
-        },
-        {
-          title: "Data Scientist",
-          rating: 4.6,
-          reviews: "23,071 ratings",
-          totalLength: "1.6 Hours",
-          imageUrl: "https://placehold.co/300x200/8b5cf6/ffffff?text=Data+Sci"
-        },
-        {
-          title: "Business Analyst",
-          rating: 4.4,
-          reviews: "15,122 ratings",
-          totalLength: "2.8 Hours",
-          imageUrl: "https://placehold.co/300x200/06b6d4/ffffff?text=Business"
-        },
-      ];
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-      
+  useEffect(() => {
+    axios.get('http://localhost:4000/courses').then((res) => {
+      setCourses(res.data);
+      setLoading(false);
+    }).catch((err) => {
+      console.log(err);
+      setLoading(false);
+    });
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4" style={{ marginTop: '-6rem' }}>
+        <div className="text-center py-8">Loading courses...</div>
+      </div>
+    );
+  }
+
   return (
-    <div id="contents-section" className="max-w-7xl mx-auto   px-4" style={({marginTop: '-6rem'} )}>
-    <div className="mb-8">
-      <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900">
-        Ready to reimagine your career?
-      </h2>
-      <p className="text-lg text-gray-900 mt-2">
-        Get the skills and real-world experience employers want with Career Accelerators.
-      </p>
+    <div id="contents-section" className="max-w-7xl mx-auto px-4" style={{ marginTop: '-6rem' }}>
+      <div className="mb-8">
+        <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900">
+          Ready to reimagine your career?
+        </h2>
+        <p className="text-lg text-gray-900 mt-2">
+          Get the skills and real-world experience employers want with Career Accelerators.
+        </p>
+      </div>
+      
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {courses.map((course, index) => (
+          <CourseCard key={course._id || index} {...course} />
+        ))}
+      </div>
     </div>
-    
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {COURSES.map((course, index) => (
-        <CourseCard key={index} {...course} />
-      ))}
-    </div>
-    
-  </div>
-  )
+  );
 }
 
-export default Contents
+export default Contents;

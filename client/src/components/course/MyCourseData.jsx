@@ -1,9 +1,14 @@
 import React from 'react'
 import { Edit3, Users, Star, Calendar } from 'lucide-react'
-
-function CourseCard({ course }) {
+import { useNavigate } from 'react-router-dom';
+function MyCourseData({course}) {
+    const navigate = useNavigate()
   return (
-    <div className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:-translate-y-1 cursor-pointer">
+         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-8">
+          {course.map((course)=>(
+             <div
+             onClick={()=>navigate(`/course/${course._id}`)}
+             className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:-translate-y-1 cursor-pointer">
       {/* Image Section */}
       <div className="relative w-full  overflow-hidden" style={{height:"15rem"}}>
         <img 
@@ -16,12 +21,9 @@ function CourseCard({ course }) {
           }}
         />
         {/* Status Badge */}
-        <div className={`absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm ${
-          course.published 
-            ? 'bg-green-500/90 text-white' 
-            : 'bg-yellow-500/90 text-white'
-        }`}>
-          {course.published ? 'Published' : 'Pending'}
+        <div className={`absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm bg-green-500/90 text-white'
+        `}>
+          {course.section}
         </div>
         
         {/* Overlay on hover */}
@@ -60,19 +62,20 @@ function CourseCard({ course }) {
 
         {/* Action Buttons */}
         <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-          <div className="text-right">
-            <span className="text-2xl font-bold text-gray-900">₹{course.price}</span>
-            <span className="text-sm text-gray-500 line-through ml-2">₹{course.price + 1999}</span>
-          </div>
+         
           
           <button className="flex items-center space-x-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 px-4 py-2 rounded-lg transition-all duration-200 group-hover:bg-indigo-100">
-            <Edit3 size={16} />
-            <span className="font-medium">Edit</span>
+            
+            <span className="font-medium">Continue</span>
           </button>
         </div>
       </div>
     </div>
+          ))}
+          
+        </div>
+   
   )
 }
 
-export default CourseCard
+export default MyCourseData

@@ -59,18 +59,20 @@ const token = localStorage.getItem("token")
           </div>
         </div>
 
-        {/* Right Section (Buttons and Cart) */}
+        
         <div className="flex items-center space-x-3 sm:space-x-4">
           <a href="#" className="hidden lg:block text-sm text-gray-500 hover:text-gray-900 transition duration-150" onClick={()=>navigate('/')}>Home</a>
           <a href="#" className="hidden lg:block text-sm text-gray-500 hover:text-gray-900 transition duration-150" onClick={()=>handleLearnMoreClick()}>Courses</a>
-          <a href="#" className="hidden sm:block text-sm text-gray-500 hover:text-gray-900 transition duration-150">Teach on Course</a>
+          <a href="#" className="hidden sm:block text-sm text-gray-500 hover:text-gray-900 transition duration-150">About Us</a>
+          <a href="#" className="hidden sm:block text-sm text-gray-500 hover:text-gray-900 transition duration-150">Teach </a>
+          {user && <a href="#" className="hidden sm:block text-sm text-gray-500 hover:text-gray-900 transition duration-150" onClick={()=>navigate('/my-courses')}>My Courses </a>}
           
-          {/* Cart Icon */}
+          
           <button className="hidden sm:block p-2 text-gray-700 hover:text-black rounded-full">
               <ShoppingCartIcon />
           </button>
           
-          {/* Mobile Search Icon - visible on smallest screens */}
+          
           <button className="sm:hidden p-2 text-gray-700 hover:text-black rounded-full">
               <SearchIcon className="w-6 h-6" />
           </button>

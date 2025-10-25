@@ -1,43 +1,7 @@
 import React,{useState} from 'react'
 import {StarIcon,ChevronDown} from '../../Icons';
-function CurriculumCard() {
-    const CURRICULUM_SECTIONS = [
-        { 
-            number: 1, 
-            title: 'Introduction to Web Development', 
-            topics: ['How the Web Works', 'Setting up Your Development Environment', 'Basic HTML Structure'] 
-        },
-        { 
-            number: 2, 
-            title: 'Frontend Development', 
-            topics: ['Advanced CSS (Flexbox & Grid)', 'Responsive Design', 'Introduction to React'] 
-        },
-        { 
-            number: 3, 
-            title: 'Backend Development', 
-            topics: ['Node.js and Express', 'REST APIs', 'Database Integration (MongoDB)'] 
-        },
-        { 
-            number: 4, 
-            title: 'Git, GitHub, and Version Control', 
-            topics: ['Basic Git Commands', 'Branching and Merging', 'Collaboration on GitHub'] 
-        },
-        { 
-            number: 5, 
-            title: 'Authentication and Security', 
-            topics: ['OAuth', 'JWT (JSON Web Tokens)', 'Input Validation'] 
-        },
-        { 
-            number: 6, 
-            title: 'Building Applications using React.js', 
-            topics: ['State Management with Hooks', 'Routing in React', 'Deployment'] 
-        },
-        { 
-            number: 7, 
-            title: 'Web3 Decentralized App Development and Deployment', 
-            topics: ['Introduction to Blockchain', 'Smart Contracts', 'Connecting to the Wallet'] 
-        },
-    ];
+function CurriculumCard({curriculumCard,course}) {
+   
 
     const [openSection, setOpenSection] = useState(null);
 
@@ -56,46 +20,37 @@ function CurriculumCard() {
                     <h3 className='text-xl font-bold text-gray-800 mb-4'>Course 1</h3>
                     <div className="relative w-full h-auto mb-4">
                         <img 
-                            src="https://placehold.co/400x250/503d98/ffffff?text=Course+Image" 
+                            src={course.imageUrl}  
                             alt="Course Thumbnail" 
                             className="w-full rounded-lg shadow-md"
                         />
                         <div className='absolute top-0 right-0 bg-yellow-400 text-gray-900 text-xs font-bold px-2 py-1 rounded-bl-lg'>
-                            Bestseller
+                            {course.section}
                         </div>
                     </div>
 
                     <h4 className="text-lg font-bold text-purple-700 mb-1">
-                        JavaScript, React, & Node.js
+                       {course.title}
                     </h4>
                     <p className="text-sm text-gray-600 mb-3">
-                        The Complete Full-Stack Web Development Bootcamp
+                        {course.description}
                     </p>
 
-                    <p className="text-xs text-gray-500 mb-4">
-                        Become a Full-Stack Web Developer with just ONE course. HTML, CSS, JavaScript, Node, React...
-                    </p>
+                   
                     
                     {/* Instructor & Stats */}
                     <div className='border-t pt-4 space-y-2'>
                         <div className='flex items-center text-sm font-semibold text-gray-700'>
                              <img 
-                                src="https://placehold.co/30x30/f0ab00/ffffff?text=RW" 
+                                src={`https://placehold.co/30x30/f0ab00/ffffff?text=${course.createdBy.charAt(0)} `}
                                 alt="Instructor" 
                                 className="w-6 h-6 rounded-full mr-2"
                             />
-                           Mr. Rizwin
+                           {course.createdBy} 
                         </div>
-                        <div className="flex items-center text-xs text-gray-600 space-x-3">
-                            <span className='flex items-center'>
-                                <StarIcon className="w-3 h-3 text-yellow-500 mr-1" /> 4.7
-                            </span>
-                            <span>(663,304 ratings)</span>
-                            <span>61.5 total hours</span>
-                           
-                        </div>
+                        
                         <p className="text-xs font-semibold text-gray-700 mt-2">
-                            ₹3,109
+                           {course.titleOfCreator}
                         </p>
                     </div>
                 </div>
@@ -113,7 +68,7 @@ function CurriculumCard() {
                     </div>
 
                     <div className="divide-y divide-gray-200">
-                        {CURRICULUM_SECTIONS.map((section) => (
+                        {curriculumCard.map((section) => (
                             <div key={section.number}>
                                 <button
                                     className="flex justify-between items-center w-full py-4 text-left group transition duration-150 ease-in-out"

@@ -1,46 +1,19 @@
-import React,{useState} from 'react'
+import React, { useState, useEffect } from 'react'
 import Quiz from '../components/course/Quiz';
-
-const quizQuestions = [
-    {
-      id: 1,
-      question: 'What is the full form of JSON?',
-      options: [
-        'Java Script On Note',
-        'Java Script Object Notation',
-        'Java Script On Notation',
-        'Java Script Off Note',
-      ],
-      correctAnswer: 'Java Script Object Notation', // Mocked correct answer
-    },
-    {
-      id: 2,
-      question: 'Which company developed React JS?',
-      options: [
-        'Google',
-        'Amazon',
-        'Meta (Facebook)',
-        'Microsoft',
-      ],
-      correctAnswer: 'Meta (Facebook)',
-    },
-    {
-      id: 3,
-      question: 'What command is used to start a React development server?',
-      options: [
-        'npm build',
-        'npm start',
-        'npm create-app',
-        'npm deploy',
-      ],
-      correctAnswer: 'npm start',
-    },
-  ];
-function Quizpage() {
-    
+import { useParams } from 'react-router-dom';
+import axios from 'axios';
+function Quizpage({ quizQuestions = [] }) {
   const [userAnswers, setUserAnswers] = useState({});
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [score, setScore] = useState(0);
+  const [quizStartTime, setQuizStartTime] = useState(Date.now());
+  const { id } = useParams(); // Get courseId from URL params
+  const courseId = id; // Use the id from URL as courseId
+
+  // Start timer when component mounts
+  useEffect(() => {
+    setQuizStartTime(Date.now());
+  }, []);
 
   // Updates the answer for a specific question
   const handleAnswerChange = (questionId, answer) => {
@@ -53,18 +26,46 @@ function Quizpage() {
   };
 
   // Calculates and submits the score
-  const handleSubmit = () => {
-    if (isSubmitted) return; // Prevent double submission
+  const handleSubmit = async () => {
+    if (isSubmitted || quizQuestions.length === 0) return;
 
     let correctCount = 0;
+    const answers = [];
+
     quizQuestions.forEach(q => {
-      if (userAnswers[q.id] === q.correctAnswer) {
+      const isCorrect = userAnswers[q._id] === q.correctAnswer;
+      if (isCorrect) {
         correctCount++;
       }
+      
+      answers.push({
+        questionId: q._id,
+        question: q.question,
+        userAnswer: userAnswers[q._id] || 'Not answered',
+        correctAnswer: q.correctAnswer,
+        isCorrect: isCorrect
+      });
     });
 
-    setScore(correctCount);
+    const score = correctCount;
+    const totalQuestions = quizQuestions.length;
+    const percentage = Math.round((score / totalQuestions) * 100);
+
+    setScore(score);
     setIsSubmitted(true);
+
+    // Save results to database
+    try {
+      await axios.post(`http://localhost:4000/course-users/${courseId}/quiz-results`, {
+        score,
+        totalQuestions,
+        answers,
+        timeSpent: Math.floor((Date.now() - quizStartTime) / 1000) // Calculate time spent
+      });
+      console.log('Quiz results saved successfully');
+    } catch (error) {
+      console.error('Error saving quiz results:', error);
+    }
   };
   
   // Check if all questions have been answered
@@ -72,14 +73,19 @@ function Quizpage() {
   const totalQuestions = quizQuestions.length;
   const passPercentage = 0.6; // 60% required to pass
 
+  if (quizQuestions.length === 0) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-xl text-gray-600">No quiz questions available for this course.</div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col lg:flex-row min-h-screen bg-gray-50 font-sans antialiased ">
       
-      {/* Sidebar */}
-      {/* <QuizSidebar course={course} navItems={navItems} currentView="quiz" /> */}
-
-      {/* Main Content Area - Pushed over by the fixed sidebar */}
-      <main className="flex-grow flex flex-col overflow-y-auto  p-6 sm:p-10">
+      {/* Main Content Area */}
+      <main className="flex-grow flex flex-col overflow-y-auto p-6 sm:p-10">
         
         <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 mb-10">
           Final Course Assessment
@@ -89,10 +95,10 @@ function Quizpage() {
         <div className="space-y-6">
           {quizQuestions.map((question, index) => (
             <Quiz
-              key={question.id}
+              key={question._id}
               question={question}
               index={index}
-              selectedAnswer={userAnswers[question.id]}
+              selectedAnswer={userAnswers[question._id]}
               handleAnswerChange={handleAnswerChange}
               isSubmitted={isSubmitted}
             />
@@ -109,6 +115,7 @@ function Quizpage() {
               </h3>
               <p className="text-xl text-gray-700 mb-4">
                 Your Score: <span className="font-extrabold">{score}/{totalQuestions}</span>
+                <span className="ml-2 text-lg">({Math.round((score / totalQuestions) * 100)}%)</span>
               </p>
               <button
                 onClick={() => {
@@ -116,9 +123,10 @@ function Quizpage() {
                     setIsSubmitted(false);
                     setUserAnswers({}); // Reset quiz state
                     setScore(0);
+                    setQuizStartTime(Date.now()); // Reset timer
                   } else {
-                    alert('Moving to certificate section!');
-                    // Mock navigation to certificate page
+                    alert('🎉 Congratulations! Certificate generated successfully!');
+                    // You can navigate to certificate page here
                   }
                 }}
                 className={`px-8 py-3 font-bold rounded-xl text-white transition duration-200 shadow-lg text-lg ${score / totalQuestions >= passPercentage ? 'bg-purple-700 hover:bg-purple-800' : 'bg-red-500 hover:bg-red-600'}`}
@@ -129,9 +137,14 @@ function Quizpage() {
           ) : (
             // Submission Button
             <div className="flex justify-between items-center">
-              <p className="text-lg text-gray-600">
-                Questions Answered: {Object.keys(userAnswers).length} / {totalQuestions}
-              </p>
+              <div>
+                <p className="text-lg text-gray-600">
+                  Questions Answered: {Object.keys(userAnswers).length} / {totalQuestions}
+                </p>
+                <p className="text-sm text-gray-500 mt-1">
+                  Time spent: {Math.floor((Date.now() - quizStartTime) / 1000)} seconds
+                </p>
+              </div>
               <button
                 onClick={handleSubmit}
                 disabled={!allAnswered}
@@ -146,7 +159,7 @@ function Quizpage() {
         </div>
       </main>
     </div>
-  )
+  );
 }
 
-export default Quizpage
+export default Quizpage;

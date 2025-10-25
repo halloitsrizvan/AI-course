@@ -1,112 +1,201 @@
-import React from 'react'
-import {StarIcon,InfoIcon,DecorativeCodeIcon} from '../../Icons'
-import { Star, Info, Users } from 'lucide-react'; 
+import React, { useEffect, useState } from 'react'
+import {StarIcon, InfoIcon, DecorativeCodeIcon} from '../../Icons'
+import { Star, Info, Users, Clock, BookOpen } from 'lucide-react'; 
 import { useNavigate } from 'react-router-dom';
-function CourseHeader() {
+import axios from 'axios';
 
+function CourseHeader({title,description,exercises,totalLength,price,enrollment,imageUrl2,section,_id}) {
+  const [checkEnrollment,setCheckEnrollment]=useState("Enroll Now");
+  const user = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : null;
+ useEffect(() => {
+  if (!user) return; // ✅ Prevent running when no user is logged in
 
-      const courseData = {
-        title: 'Full Stack Web Developer Career Accelerator',
-        description:
-          'Your career in full stack web development starts here. Fast-track learning and interview prep. Grow skills at your own pace. Expand your earnings potential.',
-        rating: 4.7,
-        exercises: 126,
-        hours: 87.8,
-        price: '₹10,397',
-        enrollment: '1.5M learners already enrolled',
-        imageUrl: 'https://placehold.co/350x350/fbbf24/000000?text=Developer+Portrait' // Placeholder for the actual image
-      };
+  axios.get('http://localhost:4000/course-users')
+    .then((res) => {
+      const isEnrolled = res.data.some(
+        (courseUser) => courseUser.userId === user._id && courseUser._id === _id
+      );
+      if (isEnrolled) {
+        setCheckEnrollment("Go to Course");
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+}, [user, _id]);
 
-      const navigate = useNavigate()
-      
+  const navigate = useNavigate();
+  
   return (
-    <div className="min-h-screen flex items-center justify-center p-2 font-sans bg-gradient-to-br from-amber-500 to-orange-600" style={{marginTop:"-3rem"}}>
+    <div className="min-h-screen flex items-center justify-center p-4 font-sans bg-gradient-to-br from-amber-500 to-orange-600" style={{marginTop:"-3rem"}}>
       {/* Main Card Container */}
-      <div className="max-w-6xl w-full bg-white rounded-3xl shadow-2xl overflow-hidden">
+      <div className="max-w-6xl w-full bg-white rounded-3xl shadow-2xl overflow-hidden mt-10">
+        {/* Mobile: Image on Top */}
+        <div className="block md:hidden relative min-h-[300px] bg-gradient-to-br from-blue-50 to-indigo-100">
+          <div className="absolute inset-4 flex items-center justify-center">
+            <img
+              src={imageUrl2}
+              alt={title}
+              className="w-full h-full object-cover rounded-2xl shadow-2xl"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = 'https://placehold.co/600x400/60a5fa/ffffff?text=Course+Image';
+              }}
+            />
+          </div>
+          {/* Section Badge */}
+          <div className="absolute top-6 right-6 bg-green-500 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg z-20">
+            {section}
+          </div>
+        </div>
+
         <div className="md:flex">
           {/* Left Section: Course Details */}
-          <div className="p-8 md:p-12 md:w-1/2 flex flex-col justify-between">
-            <div className=''>
-              {/* Title */}
-              <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4 leading-tight">
-                {courseData.title}
-              </h1>
+          <div className="p-8 md:p-12 md:w-1/2 flex flex-col">
+            {/* Title */}
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-6 leading-tight">
+              {title}
+            </h1>
 
-              {/* Description */}
-              <p className="text-base text-gray-600 mb-8">
-                {courseData.description}
-              </p>
+            {/* Description */}
+            <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+              {description}
+            </p>
 
-              {/* Stats Grid */}
-              <div className="grid grid-cols-3 gap-4 border-b border-gray-100 pb-6 " style={{marginTop:"8rem"}}>
-                <div className="flex flex-col">
-                  <div className="flex items-center text-xl font-bold text-gray-800">
-                    <Star className="w-5 h-5 text-yellow-500 mr-1" fill="#facc15" /> {/* Use Tailwind color for fill */}
-                    {courseData.rating}
-                  </div>
-                  <span className="text-sm text-gray-500 mt-1">
-                    average course rating
-                  </span>
-                </div>
-                <div className="flex flex-col">
-                  <div className="flex items-center text-xl font-bold text-gray-800">
-                    {courseData.exercises}
-                    <Info className="w-4 h-4 text-gray-400 ml-1 cursor-pointer" />
-                  </div>
-                  <span className="text-sm text-gray-500 mt-1">
-                    practice exercises
-                  </span>
-                </div>
-                <div className="flex flex-col">
-                  <div className="text-xl font-bold text-gray-800">
-                    {courseData.hours}
-                  </div>
-                  <span className="text-sm text-gray-500 mt-1">
-                    hours of content
-                  </span>
-                </div>
+            {/* Stats Grid */}
+            <div className="flex flex-row justify-between items-center border-b border-gray-200 pb-8 mb-8 md:grid md:grid-cols-3 md:gap-8">
+            {/* Exercises Section */}
+            <div className="flex flex-col items-center text-center h-full flex-1">
+              {/* Icon on Top */}
+              <div className="flex justify-center mb-2">
+                <BookOpen className="w-5 h-5 md:w-6 md:h-6 text-blue-500" />
+              </div>
+              {/* Data in Middle */}
+              <div className="text-lg md:text-2xl font-bold text-gray-800 mb-2">
+                {exercises}
+              </div>
+              {/* Fixed Text at Bottom */}
+              <div className="mt-auto">
+                <span className="text-xs md:text-sm text-gray-500">
+                  practice exercises
+                </span>
+              </div>
+            </div>
+            
+            {/* Duration Section */}
+            <div className="flex flex-col items-center text-center h-full flex-1">
+              {/* Icon on Top */}
+              <div className="flex justify-center mb-2">
+                <Clock className="w-5 h-5 md:w-6 md:h-6 text-green-500" />
+              </div>
+              {/* Data in Middle */}
+              <div className="text-lg md:text-2xl font-bold text-gray-800 mb-2">
+                {totalLength}
+              </div>
+              {/* Fixed Text at Bottom */}
+              <div className="mt-auto">
+                <span className="text-xs md:text-sm text-gray-500">
+                  hours of content
+                </span>
               </div>
             </div>
 
-            {/* Action and Enrollment Section */}
-            <div >
-              <div className="flex items-center space-x-16 mb-4">
-                <button 
-                onClick={()=>navigate('/payment')}
-                className="px-6 py-3 bg-purple-700 text-white font-semibold rounded-lg shadow-lg hover:bg-purple-800 transition duration-300 transform hover:scale-[1.02]">
-                  Get started
-                </button>
-                <span className="text-2xl font-bold text-gray-900">
-                  {courseData.price}
+            {/* Rating Section */}
+            <div className="flex flex-col items-center text-center h-full flex-1">
+              {/* Icon on Top */}
+              <div className="flex justify-center items-center mb-2">
+                <Star className="w-5 h-5 text-yellow-500" fill="#facc15" />
+              </div>
+              {/* Data in Middle */}
+              <div className="text-lg md:text-2xl font-bold text-gray-800 mb-2">
+                4.8  
+              </div>
+              {/* Fixed Text at Bottom */}
+              <div className="mt-auto">
+                <span className="text-xs md:text-sm text-gray-500">
+                  average rating
                 </span>
               </div>
-              <p className="flex items-center text-sm text-gray-500">
-                <Users className="w-4 h-4 mr-2" />
-                {courseData.enrollment}
-              </p>
             </div>
           </div>
 
-          {/* Right Section: Image and Decoration */}
-          <div className="hidden sm:block md:w-1/2 relative min-h-[300px] md:min-h-full  flex items-center justify-center overflow-hidden">
-            {/* Decorative Icon - Behind the image */}
-            <DecorativeCodeIcon />
-            
-            {/* The image itself */}
-            {/* Note: In a real app, you'd use a fixed-size, optimized image here. */}
-            <div className='p-10'>
+            {/* Action and Enrollment Section */}
+            <div className="mt-auto">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+          <button 
+            onClick={() =>{
+              if(!user){
+                navigate('/login');
+                return;
+              }
+              if(checkEnrollment==="Go to Course"){
+                navigate(`/course/${_id}`);
+              }else{
 
-            <img
-              src={courseData.imageUrl}
-              alt=""
-              className="relative z-10 w-full h-full object-cover object-top rounded-3xl shadow-xl"
-              // Fallback image in case the placeholder URL fails
-              onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = 'https://placehold.co/400x450/60a5fa/ffffff?text=Image+Missing';
-                }}
-                />
+                navigate(`/payment/${_id}`)}}
+              }
+            className="px-8 py-4 bg-purple-700 text-white font-semibold rounded-lg shadow-lg hover:bg-purple-800 transition duration-300 transform hover:scale-[1.02] flex-1 sm:flex-none text-center"
+          >
+           {checkEnrollment}
+          </button>
+          
+          {/* Price and Enrollment in one line on mobile */}
+          <div className="flex items-center justify-between w-full sm:w-auto sm:block">
+            {/* Price Section */}
+            <div className="text-center sm:text-right">
+              <span className="text-2xl font-bold text-gray-900 block">
+                ₹{price}
+              </span>
+              <span className="text-sm text-gray-500 line-through">
+                ₹{price + 1900}
+              </span>
+            </div>
+            
+            {/* Enrollment Section - Hidden on mobile since it's now combined */}
+            <div className="sm:hidden flex items-center text-sm text-gray-500 ml-4">
+              <Users className="w-4 h-4 mr-2" />
+              {enrollment}
+            </div>
+          </div>
+        </div>
+
+        {/* Enrollment Section - Show on desktop only */}
+        <div className="hidden sm:flex items-center justify-center sm:justify-start text-sm text-gray-500">
+          <Users className="w-4 h-4 mr-2" />
+          {enrollment}
+        </div>
+                      
+                      
+              
+              {/* Additional Info */}
+              <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                <div className="flex items-center text-sm text-gray-600">
+                  <Info className="w-4 h-4 mr-2 text-blue-500" />
+                  <span>Lifetime access • Certificate of completion</span>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Desktop: Image on Right (Hidden on Mobile) */}
+          <div className="hidden md:block md:w-1/2 relative min-h-[400px] md:min-h-full bg-gradient-to-br from-blue-50 to-indigo-100">
+            {/* Image container with moderate padding */}
+            <div className="absolute inset-8 flex items-center justify-center">
+              <img
+                src={imageUrl2}
+                alt={title}
+                className="w-full h-full object-cover rounded-2xl shadow-2xl"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = 'https://placehold.co/600x400/60a5fa/ffffff?text=Course+Image';
+                }}
+              />
+            </div>
+            
+            {/* Section Badge */}
+            <div className="absolute top-6 right-6 bg-green-500 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg z-20">
+              {section}
+            </div>
           </div>
         </div>
       </div>

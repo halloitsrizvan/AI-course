@@ -1,8 +1,10 @@
-import React,{useState} from 'react'
+import React, { useState } from 'react'
 import CartItem from '../course-comp/CartItem';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle, MessageCircle, DollarSign, Gift, Copy, AlertTriangle } from 'lucide-react';
 import StepCard from '../course-comp/StepCard';
+import axios from 'axios';
+
 const ActionButton = ({ onClick, children, className = '' }) => (
     <button 
         onClick={onClick} 
@@ -11,15 +13,6 @@ const ActionButton = ({ onClick, children, className = '' }) => (
         {children}
     </button>
 );
-
-const CART_ITEMS = [
-    { id: 1, title: 'Full Stack Web Accelerator', description: 'Your career in full stack web development starts here. Fast-track learning and interview prep. Grow skills at your own pace. Expand your earnings potential.', imageUrl: 'https://placehold.co/100x100/f3f4f6/333333?text=FS' },
-];
-
-const originalTotal = 15000;
-const total = 10397;
-const percentageOff = Math.round(((originalTotal - total) / originalTotal) * 100);
-
 
 const paymentSteps = [
     { 
@@ -72,34 +65,109 @@ const paymentSteps = [
     },
 ];
 
-
-function ShoppingCart() {
+function ShoppingCart({ course }) {
     const navigate = useNavigate();
+    const [couponCode, setCouponCode] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState('');
     
+    const user = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : null;
+
     // Handler for the main Whatsapp button
     const handleWhatsappContact = () => {
-        // Mock WhatsApp link (replace with actual number/message)
-        const whatsappUrl = "https://wa.me/8921342964?text=I%20want%20to%20purchase%20the%20Full%20Stack%20Web%20Accelerator%20Course%20for%20₹10%2C397.";
+        const message = `Hello,\n\nI am interested in purchasing the following course:\n\n📚 *Course Name:* ${course.title}\n💰 *Price:* ₹${total} (Original: ₹${originalTotal})\n🎯 *Discount:* ${percentageOff}% OFF\n\nPlease provide me with the payment instructions.\n\nThank you!`;
+        const encodedMessage = encodeURIComponent(message);
+        const whatsappUrl = `https://wa.me/918921342964?text=${encodedMessage}`;
         window.open(whatsappUrl, '_blank');
     };
-    
-    // Handler for applying coupon (mocked)
-    const handleCouponApply = () => {
-        // In a real app, this would validate the coupon and update the price.
-        alert('Coupon applied! Navigating to course page.'); // Using temporary 'alert' mock
-        navigate('/course');
+
+    // Handler for applying coupon
+    const handleCouponApply = async () => {
+        if (!user) {
+            navigate('/login');
+            return;
+        }
+
+        if (!couponCode.trim()) {
+            setError('Please enter a coupon code');
+            return;
+        }
+
+        setIsLoading(true);
+        setError('');
+
+        try {
+            // Prepare enrollment data
+            const enrollmentData = {
+                // Copy all course properties
+                ...course,
+                // Add user information
+                userId: user._id,
+                userName: user.name,
+                userEmail: user.email,
+                // Enrollment specific fields
+                status: 'enrolled',
+                couponCode: couponCode.trim(),
+                // Initialize progress tracking
+                progress: {
+                    completedParts: 0,
+                    totalParts: course.course?.length || 0,
+                    completionPercentage: 0,
+                    lastActivity: new Date(),
+                    startedAt: new Date()
+                },
+                // Initialize quiz results
+                quizResults: {
+                    attempts: [],
+                    bestScore: 0,
+                    bestPercentage: 0,
+                    totalAttempts: 0,
+                    passedAttempts: 0,
+                    lastAttempt: null
+                },
+                // Initialize certificate
+                certificate: {
+                    issued: false,
+                    issuedAt: null,
+                    certificateId: null,
+                    finalScore: 0,
+                    completionDate: null
+                },
+                // Update course parts status
+                course: course.course?.map((part, index) => ({
+                    ...part,
+                    status: index === 0 ? 'unlocked' : 'locked',
+                    completedAt: null
+                })) || []
+            };
+
+            console.log('Sending enrollment data:', enrollmentData);
+
+            // FIX: Send enrollmentData directly, not wrapped in an object
+            const response = await axios.post('http://localhost:4000/course-users/enroll', enrollmentData);
+            
+            console.log('Enrollment successful:', response.data);
+            alert('🎉 Enrollment successful! Redirecting to your courses...');
+            navigate('/my-courses');
+            
+        } catch (err) {
+            console.error('Enrollment error:', err);
+            setError(
+                err.response?.data?.error || 
+                err.response?.data?.message || 
+                'Failed to enroll. Please try again.'
+            );
+        } finally {
+            setIsLoading(false);
+        }
     };
+
+    const originalTotal = course.price;
+    const total = course.price - 199; 
+    const percentageOff = Math.round(((originalTotal - total) / originalTotal) * 100);
     
-    const [couponCode, setCouponCode] =useState('');
-    
-    // Function to replace alert() which is not allowed
-    const alert = (message) => {
-        console.log("ALERT:", message);
-      
-    };
-    
-  return (
-    <div className='min-h-screen bg-gray-50 font-sans antialiased'>
+    return (
+        <div className='min-h-screen bg-gray-50 font-sans antialiased'>
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <h1 className="text-xl sm:text-4xl font-extrabold text-gray-900 mb-10">
                     Shopping Cart
@@ -109,27 +177,27 @@ function ShoppingCart() {
                     
                     {/* Left Column: Payment Steps & Cart Items */}
                     <div className="lg:col-span-2">
-                        {/* Course Items List (kept for completeness) */}
                         <p className="text-lg font-bold text-gray-700 mb-4">Course</p>
                         <div className='divide-y divide-gray-200 border border-gray-200 rounded-xl mb-10 bg-white shadow-sm'>
-                            {CART_ITEMS.map(item => <CartItem key={item.id} item={item} />)}
+                            <CartItem 
+                                imageUrl2={course.imageUrl2} 
+                                title={course.title}
+                                description={course.description}
+                            />
                         </div>
                         
-                        {/* Payment Method Steps (New Design) */}
                         <h2 className="text-2xl font-bold text-gray-900 mb-6">Course Purchase Steps</h2>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                             {paymentSteps.map(step => (
                                 <StepCard key={step.id} step={step} />
                             ))}
                         </div>
-                        
                     </div>
 
                     {/* Right Column: Order Summary & Coupon */}
                     <div className="lg:col-span-1">
                         <div className="lg:sticky lg:top-12 bg-white p-6 rounded-xl shadow-2xl border border-gray-100">
                             
-                            {/* Total Summary */}
                             <h2 className='text-xl font-bold text-gray-900 mb-4 border-b pb-3'>Order Summary</h2>
                             
                             <div className='space-y-1 mb-6'>
@@ -144,7 +212,6 @@ function ShoppingCart() {
                                 </div>
                             </div>
 
-                            {/* Main Action Button */}
                             <ActionButton 
                                 className="w-full mb-4 text-lg font-semibold" 
                                 onClick={handleWhatsappContact}
@@ -155,7 +222,13 @@ function ShoppingCart() {
                             <p className="text-xs text-center text-gray-500 mb-6">
                                 Make payment via Whatsapp and receive your exclusive coupon code instantly.
                             </p>
-                            
+
+                            {/* Error Message */}
+                            {error && (
+                                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                                    <p className="text-red-700 text-sm">{error}</p>
+                                </div>
+                            )}
 
                             {/* Apply Coupon Section */}
                             <div className='border-t pt-4 mt-4'>
@@ -165,13 +238,23 @@ function ShoppingCart() {
                                         type="text" 
                                         placeholder="Enter coupon code"
                                         value={couponCode}
-                                        onChange={(e) => setCouponCode(e.target.value)}
+                                        onChange={(e) => {
+                                            setCouponCode(e.target.value);
+                                            setError(''); // Clear error when typing
+                                        }}
                                         className='flex-grow border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500'
+                                        disabled={isLoading}
                                     />
                                     <button
                                         onClick={handleCouponApply}
-                                        className='bg-white text-purple-700 border border-purple-700 px-4 py-3 text-sm font-bold rounded-lg hover:bg-purple-50 transition duration-150 shadow-sm'>
-                                        Apply
+                                        disabled={isLoading}
+                                        className={`px-4 py-3 text-sm font-bold rounded-lg transition duration-150 shadow-sm ${
+                                            isLoading 
+                                                ? 'bg-gray-400 text-gray-200 cursor-not-allowed' 
+                                                : 'bg-white text-purple-700 border border-purple-700 hover:bg-purple-50'
+                                        }`}
+                                    >
+                                        {isLoading ? 'Applying...' : 'Apply'}
                                     </button>
                                 </div>
                             </div>
@@ -180,7 +263,7 @@ function ShoppingCart() {
                 </div>
             </main>
         </div>
-  )
+    );
 }
 
-export default ShoppingCart
+export default ShoppingCart;

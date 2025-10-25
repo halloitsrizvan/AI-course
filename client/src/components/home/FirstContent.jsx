@@ -95,11 +95,11 @@ function FirstContent() {
 
 
           {/* The Person Image (Layer 2) */}
-          <div className="absolute inset-0 z-10 overflow-hidden">
+          <div className="absolute inset-0 z-10 ">
             <img
-              src={manImageUrl}
+              src="/images/baman.png"
               alt="Professional using tech"
-              className="absolute right-[-10%] bottom-0 w-[80%] h-auto object-cover rounded-xl shadow-2xl hidden md:block"
+              className="absolute right-0 bottom-0 w-[100%] h-auto object-cover rounded-xl  hidden md:block"
               style={{ minHeight: '100%', maxHeight: '100%', objectPosition: 'center 10%' }}
               onError={(e) => { e.target.onerror = null; e.target.src = "https://placehold.co/400x600/3b82f6/ffffff?text=User" }}
             />

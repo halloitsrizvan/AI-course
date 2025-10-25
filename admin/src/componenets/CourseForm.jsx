@@ -11,12 +11,13 @@ const CourseForm = ({ setActiveView }) => {
     title: "",
     description: "",
     exercises: "",
-    hours: "",
-    enrollment: "",
+    section: "",
+    enrollment: 0,
     price: "",
     imageUrl: "",
     imageUrl2: "",
     createdBy: "",
+    titleOfCreator: "",
     totalLength: "",
     published: false,
     whatYoullLearn: [],
@@ -27,7 +28,7 @@ const CourseForm = ({ setActiveView }) => {
   });
 
   // existing
-  const [newLearn, setNewLearn] = useState({ title: "", description: "" });
+  const [newLearn, setNewLearn] = useState({ number: "", title: "", description: "", link: "" });
   const [newSkill, setNewSkill] = useState("");
 
   // new
@@ -55,23 +56,33 @@ const CourseForm = ({ setActiveView }) => {
     });
   };
 
-  // What You'll Learn
+  // What You'll Learn - UPDATED
   const addLearnItem = () => {
     if (!newLearn.title) return;
     setFormData({
       ...formData,
-      whatYoullLearn: [...formData.whatYoullLearn, { ...newLearn }],
+      whatYoullLearn: [...formData.whatYoullLearn, { 
+        number: formData.whatYoullLearn.length + 1,
+        title: newLearn.title,
+        description: newLearn.description,
+        link: newLearn.link
+      }],
     });
-    setNewLearn({ title: "", description: "" });
+    setNewLearn({ number: "", title: "", description: "", link: "" });
   };
 
   const removeLearnItem = (index) => {
     const updated = [...formData.whatYoullLearn];
     updated.splice(index, 1);
-    setFormData({ ...formData, whatYoullLearn: updated });
+    // Update numbers after removal
+    const renumbered = updated.map((item, idx) => ({
+      ...item,
+      number: idx + 1
+    }));
+    setFormData({ ...formData, whatYoullLearn: renumbered });
   };
 
-  // Skills
+  // Skills - UPDATED (now just name field)
   const addSkill = () => {
     if (!newSkill) return;
     setFormData({
@@ -87,7 +98,7 @@ const CourseForm = ({ setActiveView }) => {
     setFormData({ ...formData, skillsThatMatter: updated });
   };
 
-  // Curriculum
+  // Curriculum - UPDATED (number field)
   const addCurriculumTopic = () =>
     setNewCurriculum({
       ...newCurriculum,
@@ -104,7 +115,11 @@ const CourseForm = ({ setActiveView }) => {
     if (!newCurriculum.title) return;
     setFormData({
       ...formData,
-      curriculumCard: [...formData.curriculumCard, { ...newCurriculum }],
+      curriculumCard: [...formData.curriculumCard, { 
+        number: parseInt(newCurriculum.number) || formData.curriculumCard.length + 1,
+        title: newCurriculum.title,
+        topics: newCurriculum.topics.filter(topic => topic.trim() !== "")
+      }],
     });
     setNewCurriculum({ number: "", title: "", topics: [""] });
   };
@@ -112,10 +127,15 @@ const CourseForm = ({ setActiveView }) => {
   const removeCurriculum = (i) => {
     const updated = [...formData.curriculumCard];
     updated.splice(i, 1);
-    setFormData({ ...formData, curriculumCard: updated });
+    // Update numbers after removal
+    const renumbered = updated.map((item, idx) => ({
+      ...item,
+      number: idx + 1
+    }));
+    setFormData({ ...formData, curriculumCard: renumbered });
   };
 
-  // Course Parts
+  // Course Parts - UPDATED (lessons is now an array)
   const addLesson = () => {
     setNewCoursePart({
       ...newCoursePart,
@@ -126,31 +146,47 @@ const CourseForm = ({ setActiveView }) => {
     });
   };
 
-  const updateLesson = (index, field, value) => {
-    const updated = [...newCoursePart.lessons];
-    updated[index][field] = value;
-    setNewCoursePart({ ...newCoursePart, lessons: updated });
-  };
+   const updateLesson = (field, value) => {
+      const updatedLesson = { ...newCoursePart.lessons[0], [field]: value };
+      setNewCoursePart({ 
+        ...newCoursePart, 
+        lessons: [updatedLesson] 
+      });
+    };
 
-  const addCoursePart = () => {
-    if (!newCoursePart.part) return;
-    setFormData({
-      ...formData,
-      course: [...formData.course, { ...newCoursePart }],
-    });
-    setNewCoursePart({
-      part: "",
-      lessons: [{ title: "", videoId: "", description: "", keyNotes: "" }],
-    });
-  };
+  // Course Parts - UPDATED (only one lesson per part)
+    const addCoursePart = () => {
+      if (!newCoursePart.part || !newCoursePart.title) return;
+      setFormData({
+        ...formData,
+        course: [...formData.course, { 
+          part: parseInt(newCoursePart.part),
+          title: newCoursePart.title,
+          lessons: {
+            title: newCoursePart.lessons[0].title,
+            videoId: newCoursePart.lessons[0].videoId,
+            description: newCoursePart.lessons[0].description,
+            keyNotes: newCoursePart.lessons[0].keyNotes
+          }
+        }],
+      });
+      setNewCoursePart({
+        part: "",
+        title: "",
+        lessons: [{ title: "", videoId: "", description: "", keyNotes: "" }],
+      });
+    };
 
-  const removeCoursePart = (i) => {
-    const updated = [...formData.course];
-    updated.splice(i, 1);
-    setFormData({ ...formData, course: updated });
-  };
+    const removeCoursePart = (i) => {
+      const updated = [...formData.course];
+      updated.splice(i, 1);
+      setFormData({ ...formData, course: updated });
+    };
 
-  // Quiz Section
+    // Update lesson function for single lesson
+    
+
+  // Quiz Section - UPDATED (correct structure)
   const addOption = () =>
     setNewQuiz({ ...newQuiz, options: [...newQuiz.options, ""] });
 
@@ -164,7 +200,11 @@ const CourseForm = ({ setActiveView }) => {
     if (!newQuiz.question) return;
     setFormData({
       ...formData,
-      quizQuestions: [...formData.quizQuestions, { ...newQuiz }],
+      quizQuestions: [...formData.quizQuestions, { 
+        question: newQuiz.question,
+        options: newQuiz.options.filter(opt => opt.trim() !== ""),
+        correctAnswer: newQuiz.correctAnswer
+      }],
     });
     setNewQuiz({ question: "", options: [""], correctAnswer: "" });
   };
@@ -229,6 +269,28 @@ const CourseForm = ({ setActiveView }) => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700">
+                Section
+              </label>
+              <select
+                name="section"
+                value={formData.section}
+                onChange={handleChange}
+                className="mt-1 block w-full border border-gray-300 rounded-xl shadow-sm p-3 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              >
+                <option value="">-- Select Section --</option>
+                <option value="GENERATIVE AI">GENERATIVE AI</option>
+                <option value="PROMPT ENGINEERING">PROMPT ENGINEERING</option>
+                <option value="ISLAMIC">ISLAMIC</option>
+                <option value="COMMUNICATION">COMMUNICATION</option>
+                <option value="DESIGN">DESIGN</option>
+                <option value="AI AND ML">AI AND ML</option>
+                <option value="MARKETING">MARKETING</option>
+                <option value="DEVELOPMENT">DEVELOPMENT</option>
+              </select>
+
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
                 Exercises
               </label>
               <input
@@ -240,32 +302,21 @@ const CourseForm = ({ setActiveView }) => {
                 className="mt-1 block w-full border border-gray-300 rounded-xl shadow-sm p-3"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Duration (hours)
-              </label>
-              <input
-                type="text"
-                name="hours"
-                value={formData.hours}
-                onChange={handleChange}
-                className="mt-1 block w-full border border-gray-300 rounded-xl shadow-sm p-3"
-              />
-            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Enrollment
+                Total Length
               </label>
               <input
                 type="text"
-                name="enrollment"
-                value={formData.enrollment}
+                name="totalLength"
+                value={formData.totalLength}
                 onChange={handleChange}
-                placeholder="e.g., 1200 students"
+                placeholder="e.g., 15h 30m"
                 className="mt-1 block w-full border border-gray-300 rounded-xl shadow-sm p-3"
+                required
               />
             </div>
             <div>
@@ -329,18 +380,18 @@ const CourseForm = ({ setActiveView }) => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Total Length
+                Title of Creator
               </label>
               <input
                 type="text"
-                name="totalLength"
-                value={formData.totalLength}
+                name="titleOfCreator"
+                value={formData.titleOfCreator}
                 onChange={handleChange}
-                placeholder="e.g., 15h 30m"
                 className="mt-1 block w-full border border-gray-300 rounded-xl shadow-sm p-3"
                 required
               />
             </div>
+           
           </div>
 
           {/* Publish Switch */}
@@ -355,7 +406,7 @@ const CourseForm = ({ setActiveView }) => {
             <label className="ml-2 text-sm text-gray-700">Publish Course</label>
           </div>
 
-          {/* What You'll Learn Section */}
+          {/* What You'll Learn Section - UPDATED */}
           <div>
             <h3 className="text-lg font-semibold text-gray-800">
               What You'll Learn
@@ -364,9 +415,13 @@ const CourseForm = ({ setActiveView }) => {
               {formData.whatYoullLearn.map((item, i) => (
                 <div
                   key={i}
-                  className="flex justify-between items-center bg-gray-50 p-2 rounded-xl border"
+                  className="flex justify-between items-center bg-gray-50 p-3 rounded-xl border"
                 >
-                  <span>{item.title}</span>
+                  <div>
+                    <span className="font-medium">#{item.number} - {item.title}</span>
+                    {item.description && <p className="text-sm text-gray-600 mt-1">{item.description}</p>}
+                    {item.link && <p className="text-xs text-blue-500 mt-1">{item.link}</p>}
+                  </div>
                   <button
                     type="button"
                     onClick={() => removeLearnItem(i)}
@@ -377,7 +432,7 @@ const CourseForm = ({ setActiveView }) => {
                 </div>
               ))}
             </div>
-            <div className="flex gap-2 mt-2">
+            <div className="space-y-2 mt-3">
               <input
                 type="text"
                 placeholder="Title"
@@ -385,19 +440,37 @@ const CourseForm = ({ setActiveView }) => {
                 onChange={(e) =>
                   setNewLearn({ ...newLearn, title: e.target.value })
                 }
-                className="flex-1 border rounded-xl p-2"
+                className="w-full border rounded-xl p-2"
+              />
+              <input
+                type="text"
+                placeholder="Description"
+                value={newLearn.description}
+                onChange={(e) =>
+                  setNewLearn({ ...newLearn, description: e.target.value })
+                }
+                className="w-full border rounded-xl p-2"
+              />
+              <input
+                type="text"
+                placeholder="Link (optional)"
+                value={newLearn.link}
+                onChange={(e) =>
+                  setNewLearn({ ...newLearn, link: e.target.value })
+                }
+                className="w-full border rounded-xl p-2"
               />
               <button
                 type="button"
                 onClick={addLearnItem}
-                className="bg-indigo-600 text-white rounded-xl px-3 flex items-center"
+                className="bg-indigo-600 text-white rounded-xl px-4 py-2 flex items-center"
               >
-                <Plus className="w-4 h-4 mr-1" /> Add
+                <Plus className="w-4 h-4 mr-1" /> Add Learning Outcome
               </button>
             </div>
           </div>
 
-          {/* Skills That Matter */}
+          {/* Skills That Matter - UPDATED */}
           <div>
             <h3 className="text-lg font-semibold text-gray-800">
               Skills That Matter
@@ -449,7 +522,7 @@ const CourseForm = ({ setActiveView }) => {
                 className="border p-3 mb-2 rounded-xl bg-gray-50 flex justify-between"
               >
                 <div>
-                  <strong>{c.title}</strong>
+                  <strong>#{c.number} - {c.title}</strong>
                   <p className="text-sm text-gray-600">
                     Topics: {c.topics.join(", ")}
                   </p>
@@ -520,92 +593,94 @@ const CourseForm = ({ setActiveView }) => {
           </div>
 
           {/* === Course Parts === */}
-          <div>
-            <h3 className="text-xl font-semibold text-gray-800 mb-2">
-              Course Parts
-            </h3>
+          {/* === Course Parts === */}
+      <div>
+        <h3 className="text-xl font-semibold text-gray-800 mb-2">
+          Course Parts
+        </h3>
 
-            {formData.course.map((part, i) => (
-              <div
-                key={i}
-                className="border p-3 mb-2 rounded-xl bg-gray-50 flex justify-between"
-              >
-                <div>
-                  <strong>Part {part.part}</strong> –{" "}
-                  {part.lessons.length} Lessons
-                </div>
-                <button
-                  type="button"
-                  onClick={() => removeCoursePart(i)}
-                  className="text-red-500"
-                >
-                  <X />
-                </button>
-              </div>
-            ))}
-
-            <input
-              type="number"
-              placeholder="Part Number"
-              value={newCoursePart.part}
-              onChange={(e) =>
-                setNewCoursePart({ ...newCoursePart, part: e.target.value })
-              }
-              className="border rounded-xl p-2 mt-2 w-full"
-            />
-
-            {newCoursePart.lessons.map((lesson, i) => (
-              <div key={i} className="border p-3 mt-2 rounded-xl bg-gray-50">
-                <input
-                  type="text"
-                  placeholder="Lesson Title"
-                  value={lesson.title}
-                  onChange={(e) => updateLesson(i, "title", e.target.value)}
-                  className="border rounded-xl p-2 w-full mb-2"
-                />
-                <input
-                  type="text"
-                  placeholder="Video ID"
-                  value={lesson.videoId}
-                  onChange={(e) => updateLesson(i, "videoId", e.target.value)}
-                  className="border rounded-xl p-2 w-full mb-2"
-                />
-                <input
-                  type="text"
-                  placeholder="Description"
-                  value={lesson.description}
-                  onChange={(e) =>
-                    updateLesson(i, "description", e.target.value)
-                  }
-                  className="border rounded-xl p-2 w-full mb-2"
-                />
-                <input
-                  type="text"
-                  placeholder="Key Notes"
-                  value={lesson.keyNotes}
-                  onChange={(e) => updateLesson(i, "keyNotes", e.target.value)}
-                  className="border rounded-xl p-2 w-full"
-                />
-              </div>
-            ))}
-
-            <div className="flex gap-2 mt-2">
-              <button
-                type="button"
-                onClick={addLesson}
-                className="bg-gray-200 px-2 py-1 rounded-xl"
-              >
-                + Lesson
-              </button>
-              <button
-                type="button"
-                onClick={addCoursePart}
-                className="bg-indigo-600 text-white px-3 py-1 rounded-xl"
-              >
-                + Add Part
-              </button>
+        {formData.course.map((part, i) => (
+          <div
+            key={i}
+            className="border p-3 mb-2 rounded-xl bg-gray-50 flex justify-between"
+          >
+            <div>
+              <strong>Part {part.part}: {part.title}</strong>
+              <p className="text-sm text-gray-600 mt-1">
+                Lesson: {part.lessons.title}
+              </p>
             </div>
+            <button
+              type="button"
+              onClick={() => removeCoursePart(i)}
+              className="text-red-500"
+            >
+              <X />
+            </button>
           </div>
+        ))}
+
+        <div className="grid grid-cols-2 gap-2 mt-3">
+          <input
+            type="number"
+            placeholder="Part Number"
+            value={newCoursePart.part}
+            onChange={(e) =>
+              setNewCoursePart({ ...newCoursePart, part: e.target.value })
+            }
+            className="border rounded-xl p-2"
+          />
+          <input
+            type="text"
+            placeholder="Part Title"
+            value={newCoursePart.title}
+            onChange={(e) =>
+              setNewCoursePart({ ...newCoursePart, title: e.target.value })
+            }
+            className="border rounded-xl p-2"
+          />
+        </div>
+
+        {/* Single Lesson Inputs */}
+        <div className="border p-3 mt-2 rounded-xl bg-gray-50">
+          <input
+            type="text"
+            placeholder="Lesson Title"
+            value={newCoursePart.lessons[0].title}
+            onChange={(e) => updateLesson("title", e.target.value)}
+            className="border rounded-xl p-2 w-full mb-2"
+          />
+          <input
+            type="text"
+            placeholder="Youtube Video ID"
+            value={newCoursePart.lessons[0].videoId}
+            onChange={(e) => updateLesson("videoId", e.target.value)}
+            className="border rounded-xl p-2 w-full mb-2"
+          />
+          <input
+            type="text"
+            placeholder="Description"
+            value={newCoursePart.lessons[0].description}
+            onChange={(e) => updateLesson("description", e.target.value)}
+            className="border rounded-xl p-2 w-full mb-2"
+          />
+          <input
+            type="text"
+            placeholder="Key Notes"
+            value={newCoursePart.lessons[0].keyNotes}
+            onChange={(e) => updateLesson("keyNotes", e.target.value)}
+            className="border rounded-xl p-2 w-full"
+          />
+        </div>
+
+        <button
+          type="button"
+          onClick={addCoursePart}
+          className="bg-indigo-600 text-white px-3 py-2 rounded-xl mt-2"
+        >
+          + Add New Part 
+        </button>
+      </div>
 
           {/* === Quiz Section === */}
           <div>
@@ -620,6 +695,9 @@ const CourseForm = ({ setActiveView }) => {
                   <strong>{q.question}</strong>
                   <p className="text-sm text-gray-600">
                     Options: {q.options.join(", ")}
+                  </p>
+                  <p className="text-sm text-green-600">
+                    Correct: {q.correctAnswer}
                   </p>
                 </div>
                 <button

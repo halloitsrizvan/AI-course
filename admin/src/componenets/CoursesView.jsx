@@ -1,14 +1,16 @@
 import React from 'react'
 import CourseCard from './CourseCard'
 import {UploadCloud } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 function CoursesView({ courses, setActiveView }) {
+    const navigate = useNavigate();
   return (
     <div className="space-y-6">
         <div className="flex justify-between items-center">
             <h1 className="text-3xl font-extrabold text-gray-800">All Courses ({courses.length})</h1>
             <button
-                onClick={() => setActiveView('add-course')}
+                onClick={() => navigate('/add-course')}
                 className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-xl shadow-lg transition-colors flex items-center space-x-2"
             >
                 <UploadCloud className="w-5 h-5" />

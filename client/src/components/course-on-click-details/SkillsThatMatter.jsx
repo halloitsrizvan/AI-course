@@ -1,13 +1,7 @@
 import React from 'react'
 import { StarIcon,CheckSquare } from '../../Icons';
-function SkillsThatMatter() {
-    const SKILLS = [
-        { name: 'Web Development',},
-        { name: 'JavaScript',},
-        { name: 'HTML',},
-        { name: 'CSS', },
-        { name: 'Node.js', },
-    ];
+function SkillsThatMatter({skill}) {
+  
   return (
     <div className="max-w-7xl mx-auto my-16 px-4">
         <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-8">
@@ -15,7 +9,7 @@ function SkillsThatMatter() {
         </h2>
         
         <div className="flex flex-wrap gap-4">
-            {SKILLS.map((skill, index) => (
+            {skill.map((skill, index) => (
                 <div key={index} className="flex items-center bg-gray-100 border border-gray-300 rounded-full px-4 py-2 text-sm font-medium text-gray-700 transition duration-200 hover:bg-gray-200 cursor-pointer shadow-sm">
                     <CheckSquare className="w-4 h-4 mr-2 text-purple-600" />
                     {skill.name} 

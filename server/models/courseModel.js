@@ -13,11 +13,11 @@ const CourseSchema = new Schema({
     exercises: {
         type: String
     },
-    hours:{
+    titleOfCreator:{
         type: String
     },
     enrollment: {
-        type: String
+        type: Number
     },
     price: {    
         type: Number,
@@ -36,6 +36,10 @@ const CourseSchema = new Schema({
         required: true
     },
     totalLength: {
+        type: String,   
+        required: true
+    },
+     section: {
         type: String,   
         required: true
     },
@@ -66,14 +70,14 @@ const CourseSchema = new Schema({
     course:[
         {
             part: Number,
-            lessons: [
+            lessons: 
                 {
                     title: String,
                     videoId: String,
                     description: String,
                     keyNotes: String
                 }
-            ]
+            
         }
     ],
     quizQuestions: [
