@@ -12,15 +12,7 @@ import axios from 'axios';
 import MyCourses from './pages/MyCourses';
 import MyLearnig from './pages/MyLearnig';
 function App() {
-  const [course,setCourse] = useState([]);
-  useEffect(()=>{
-    axios.get('http://localhost:4000/').then((res)=>{
-      setCourse(res.data);
-      console.log(res.data);  
-    }).catch((err)=>{
-      console.log(err);
-    })
-  },[])
+ 
   return (
     <div>
         <BrowserRouter>

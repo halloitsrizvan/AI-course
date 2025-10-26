@@ -7,10 +7,27 @@ function MyLearnig() {
       const [courses, setCourses] = useState([]);
       const [loading, setLoading] = useState(true);
    
+      useEffect(()=>{
+        axios.get('http://localhost:4000/course-users').then((res)=>{
+          const enrolledCourses = res.data.filter((crs) => crs.userId === user.id);
+          setCourses(enrolledCourses);
+          setLoading(false);
+        }).catch((err)=>{
+          console.log(err);
+          setLoading(false);
+        });
+      },[user.id])
   return (
     <div>
-        <Header/>
-        <h2>Helllo course</h2>
+        {courses.length === 0 ? <Header/> :
+         <div>
+            <Header/><MyCourseData course={courses}/>
+          
+         </div>
+
+        }
+        
+        
     </div>
   )
 }

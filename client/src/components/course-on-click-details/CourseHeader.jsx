@@ -8,12 +8,12 @@ function CourseHeader({title,description,exercises,totalLength,price,enrollment,
   const [checkEnrollment,setCheckEnrollment]=useState("Enroll Now");
   const user = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : null;
  useEffect(() => {
-  if (!user) return; // ✅ Prevent running when no user is logged in
+  if (!user) return; // 
 
   axios.get('http://localhost:4000/course-users')
     .then((res) => {
       const isEnrolled = res.data.some(
-        (courseUser) => courseUser.userId === user._id && courseUser._id === _id
+        (courseUser) => courseUser.userId === user._id && courseUser.courseId === _id
       );
       if (isEnrolled) {
         setCheckEnrollment("Go to Course");
@@ -22,6 +22,9 @@ function CourseHeader({title,description,exercises,totalLength,price,enrollment,
     .catch((err) => {
       console.log(err);
     });
+
+    console.log(checkEnrollment);
+    
 }, [user, _id]);
 
   const navigate = useNavigate();

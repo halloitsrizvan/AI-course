@@ -147,6 +147,9 @@ const CourseUsersSchema = new Schema({
     },
     couponCode:{
         type: String
+    },
+    courseId:{
+        type: String
     }
 
 }, { timestamps: true })    

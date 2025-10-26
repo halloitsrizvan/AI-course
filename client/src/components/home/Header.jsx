@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SearchIcon, ShoppingCartIcon, XIcon, MenuIcon } from '../../Icons';
 import { useNavigate, useLocation } from 'react-router-dom';
+import axios from 'axios';
 
 // Add the GlobeIcon since it's used in the new design
 const GlobeIcon = (props) => (
@@ -9,6 +10,10 @@ const GlobeIcon = (props) => (
 
 function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [hoveredLink, setHoveredLink] = useState(null);
+  const [megaMenuCategory, setMegaMenuCategory] = useState(null);
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -16,6 +21,58 @@ function Header() {
 
   const token = localStorage.getItem("token");
   const user = localStorage.getItem("user") ? JSON.parse(localStorage.getItem("user")) : null;
+
+  // Fetch courses from database
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        setLoading(true);
+        const res = await axios.get('http://localhost:4000/courses');
+        console.log('Fetched courses:', res.data); // Debug log
+        setCourses(res.data);
+      } catch (err) {
+        console.log('Error fetching courses for header:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCourses();
+  }, []);
+
+  // Group courses by section for mega menu
+  const groupCoursesBySection = () => {
+    const grouped = {};
+    
+    courses.forEach(course => {
+      if (course.section && course.published) {
+        if (!grouped[course.section]) {
+          grouped[course.section] = [];
+        }
+        
+        // Format course data for mega menu display
+        grouped[course.section].push({
+          _id: course._id,
+          title: course.title,
+          duration: course.totalLength || 'N/A',
+          rating: 4.8, // You can calculate this from your database if you have ratings
+          price: `₹${course.price}`,
+          imageUrl: course.imageUrl,
+          enrollment: course.enrollment
+        });
+      }
+    });
+
+    console.log('Grouped courses:', grouped); // Debug log
+    return grouped;
+  };
+
+  const coursesBySection = groupCoursesBySection();
+  
+  // Get unique sections for category navigation
+  const categories = Object.keys(coursesBySection).filter(section => 
+    coursesBySection[section].length > 0
+  );
 
   // Determine active link based on current route
   const getActiveLink = () => {
@@ -32,28 +89,21 @@ function Header() {
   const [activeLink, setActiveLink] = useState(getActiveLink());
 
   // Update active link when route changes
-  React.useEffect(() => {
+  useEffect(() => {
     setActiveLink(getActiveLink());
   }, [location.pathname]);
-
-  // Categories for the bottom bar
-  const categories = ['DEVELOPMENT', 'MARKETING', 'COMMUNICATION', 'PROMPT ENGINEERING', 'GENERATIVE AI', 'DATA SCIENCE'];
 
   const handleLinkClick = (path, name) => {
     setActiveLink(name);
     
     if (name === 'COURSES') {
-      // For COURSES, navigate to home and scroll to courses section
       if (location.pathname === '/') {
-        // Already on home page, just scroll
         const section = document.getElementById("contents-section");
         if (section) {
           section.scrollIntoView({ behavior: "smooth" });
         }
       } else {
-        // Navigate to home first, then scroll
         navigate('/');
-        // Use setTimeout to ensure navigation completes before scrolling
         setTimeout(() => {
           const section = document.getElementById("contents-section");
           if (section) {
@@ -62,7 +112,6 @@ function Header() {
         }, 100);
       }
     } else {
-      // For all other links, simply navigate to the path
       navigate(path);
     }
     closeMenu();
@@ -74,24 +123,132 @@ function Header() {
     navigate('/login');
   };
 
-// Component for the primary navigation links (with pill style)
-const NavPill = ({ name, path }) => {
-  const isActive = activeLink === name;
-  return (
-    <button
-      onClick={() => handleLinkClick(path, name)}
-      className={`
-        px-4 py-2 text-sm font-bold rounded-lg transition-all duration-200 shadow-sm whitespace-nowrap
-        ${isActive
-          ? 'bg-yellow-400 text-gray-900 shadow-md hover:bg-yellow-500'
-          : 'bg-transparent text-gray-900 hover:bg-yellow-200 hover:shadow-md'
-        }
-      `}
+  // Component for the primary navigation links
+  const NavPill = ({ name, path }) => {
+    const isActive = activeLink === name;
+    const isHovered = hoveredLink === name;
+    const isVisualActive = isActive || isHovered;
+
+    return (
+      <div
+        className="relative flex flex-col items-center group"
+        onMouseEnter={() => setHoveredLink(name)}
+        onMouseLeave={() => setHoveredLink(null)}
+      >
+        <button
+          onClick={() => handleLinkClick(path, name)}
+          className={`
+            px-4 py-2 text-sm font-bold rounded-lg transition-all duration-200 shadow-sm whitespace-nowrap
+            ${isVisualActive
+              ? 'bg-yellow-400 text-gray-900 shadow-md hover:bg-yellow-500'
+              : 'bg-transparent text-gray-900 hover:bg-yellow-200 hover:shadow-md'
+            }
+          `}
+        >
+          {name}
+        </button>
+        {/* Three dot indicator */}
+        {isVisualActive && (
+          <div className="mt-1 flex space-x-0.5 transform -translate-y-0.5">
+            <div className="w-1 h-1 bg-yellow-600 rounded-full"></div>
+            <div className="w-1 h-1 bg-yellow-600 rounded-full"></div>
+            <div className="w-1 h-1 bg-yellow-600 rounded-full"></div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Course card component for mega menu
+  const CourseCard = ({ course }) => (
+    <div 
+      className="bg-pink-100 p-3 rounded-lg shadow-sm border border-pink-200 cursor-pointer hover:shadow-lg transition duration-150 transform hover:-translate-y-0.5"
+      onClick={() => navigate(`/course-details/${course._id}`)}
     >
-      {name}
-    </button>
+      {/* Course Image */}
+      <div className=" flex items-center justify-center rounded mb-2 overflow-hidden" style={{height:'10rem'}}>
+        <img 
+          src={course.imageUrl} 
+          alt={course.title}
+          className="w-full h-full object-cover"
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = 'https://placehold.co/400x200/4b5563/ffffff?text=Course+Image';
+          }}
+        />
+      </div>
+      
+      {/* Course Title */}
+      <p className="text-sm font-semibold text-gray-800 line-clamp-2 mb-2">
+        {course.title}
+      </p>
+      
+      {/* Tags/Badges */}
+      <div className="flex flex-wrap items-center gap-2 text-xs font-medium">
+        <span className="bg-blue-600 text-white px-2 py-0.5 rounded-full">
+          {course.duration}
+        </span>
+        <span className="bg-yellow-500 text-gray-900 px-2 py-0.5 rounded-full flex items-center space-x-0.5">
+          <span>{course.rating}</span>
+          <span>⭐</span>
+        </span>
+        <span className="bg-green-500 text-white px-2 py-0.5 rounded-full ml-auto">
+          {course.price}
+        </span>
+      </div>
+    </div>
   );
-};
+
+  // Mega menu content component
+  const MegaMenuContent = ({ category }) => {
+    const courses = coursesBySection[category] || [];
+    
+    if (courses.length === 0) {
+      return (
+        <div className="absolute top-full left-0 right-0 pt-0.5 shadow-xl bg-white border-t-2 border-yellow-400 z-50 animate-fadeIn">
+          <div className="max-w-7xl mx-auto px-8 py-8">
+            <h3 className="text-2xl font-extrabold text-gray-900 mb-6 border-b pb-2">
+              Featured {category} Courses
+            </h3>
+            <div className="text-center py-8 text-gray-500">
+              No courses available in this category yet.
+            </div>
+          </div>
+        </div>
+      );
+    }
+    
+    return (
+      <div className="absolute top-full left-60 right-0 pt-0.5 w-3/4 shadow-xl bg-white border-t-2 border-yellow-400 z-50 animate-fadeIn">
+        <div className="max-w-7xl mx-auto px-8 py-8">
+          {/* Category Title */}
+          <h3 className="text-2xl font-extrabold text-gray-900 mb-6 border-b pb-2">
+            Featured {category} Courses
+          </h3>
+          
+          {/* Course Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {courses.slice(0, 4).map((course, index) => (
+              <CourseCard key={course._id || index} course={course} />
+            ))}
+          </div>
+
+          {/* View All Button */}
+          {/* <div className="mt-8 flex justify-center">
+            <button 
+              onClick={() => {
+                navigate('/');
+                // You can add logic to filter by category on the home page
+              }}
+              className="text-purple-600 font-semibold text-lg hover:text-purple-800 transition py-2 px-4 rounded-lg border border-purple-200 hover:bg-purple-50"
+            >
+              Explore All {category} &rarr;
+            </button>
+          </div> */}
+        </div>
+      </div>
+    );
+  };
 
   // Define navigation paths for each menu item
   const getNavigationPath = (name) => {
@@ -99,7 +256,7 @@ const NavPill = ({ name, path }) => {
       case 'HOME':
         return '/';
       case 'COURSES':
-        return '/'; // Courses goes to home and scrolls to section
+        return '/';
       case 'MY LEARNING':
         return '/my-courses';
       case 'TEACH':
@@ -113,12 +270,23 @@ const NavPill = ({ name, path }) => {
 
   return (
     <header className="sticky top-0 bg-white z-50 font-sans shadow-lg border-b border-gray-200">
+      {/* Add fade-in animation */}
+      <style jsx="true">{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(-5px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out forwards;
+        }
+      `}</style>
+      
       {/* -------------------- 1. Main Header Row (Desktop & Mobile) -------------------- */}
       <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
         
         {/* Left Section: Logo and Menu Button */}
         <div className="flex items-center space-x-4">
-          {/* Mobile Menu Button - visible on small screens */}
+          {/* Mobile Menu Button */}
           <button
             className="lg:hidden p-2 text-gray-700 hover:text-black rounded-full"
             onClick={() => setIsMenuOpen(true)}
@@ -135,11 +303,11 @@ const NavPill = ({ name, path }) => {
           </button>
         </div>
 
-        {/* Center Section: Desktop Navigation Links (Pill Style) */}
+        {/* Center Section: Desktop Navigation Links */}
         <nav className="hidden lg:flex items-center space-x-3">
           <NavPill name="HOME" path={getNavigationPath('HOME')} />
           <NavPill name="COURSES" path={getNavigationPath('COURSES')} />
-        {user &&  <NavPill name="MY LEARNING" path={getNavigationPath('MY LEARNING')} />}
+          {user && <NavPill name="MY LEARNING" path={getNavigationPath('MY LEARNING')} />}
           <NavPill name="TEACH" path={getNavigationPath('TEACH')} />
           <NavPill name="ABOUT US" path={getNavigationPath('ABOUT US')} />
         </nav>
@@ -189,36 +357,51 @@ const NavPill = ({ name, path }) => {
         </div>
       </div>
 
-      {/* -------------------- 2. Category Navigation Row (Desktop Only) -------------------- */}
-      <div className="hidden lg:block border-t border-gray-200 py-2 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-8 flex items-center justify-between">
-          <div className="flex space-x-6 text-sm font-medium text-gray-700 overflow-x-auto pb-1">
-            {categories.map((cat, index) => (
-              <button 
-                key={cat} 
-                onClick={() => console.log(`Category: ${cat}`)}
-                className={`whitespace-nowrap hover:text-gray-900 transition duration-150 ${index === 0 ? 'text-gray-900 font-bold' : ''}`}
-              >
-                {cat}
+      {/* -------------------- 2. Category Navigation Row with Mega Menu -------------------- */}
+      {categories.length > 0 && (
+        <div 
+          className="hidden lg:block border-t border-gray-200 py-2 bg-gray-50 relative"
+          onMouseLeave={() => setMegaMenuCategory(null)}
+        >
+          <div className="max-w-7xl mx-auto px-8 flex items-center justify-between">
+            <div className="flex space-x-6 text-sm font-medium text-gray-700 overflow-x-auto pb-1">
+              {categories.map((cat, index) => (
+                <button 
+                  key={cat} 
+                  onClick={() => {
+                    console.log(`Category: ${cat}`);
+                    navigate('/');
+                    // You can add logic to scroll to specific category section
+                  }}
+                  onMouseEnter={() => setMegaMenuCategory(cat)}
+                  className={`whitespace-nowrap hover:text-gray-900 transition duration-150 py-1 px-2 rounded-lg ${
+                    megaMenuCategory === cat ? 'bg-white text-gray-900 font-bold shadow-sm' : ''
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+
+            {/* Search Bar */}
+            <div className="relative flex items-center ml-auto">
+              <input
+                type="text"
+                placeholder="Search courses..."
+                className="w-40 bg-white border border-gray-300 rounded-full py-1.5 pl-3 pr-8 text-xs focus:outline-none focus:ring-1 focus:ring-purple-500"
+              />
+              <button className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-600 hover:text-gray-900 p-0.5 rounded-full" aria-label="Search">
+                <SearchIcon className="w-3 h-3" />
               </button>
-            ))}
+            </div>
           </div>
-
-          {/* Search Bar - styled to match a quick-search field */}
-          <div className="relative flex items-center ml-auto">
-            <input
-              type="text"
-              placeholder="Search courses..."
-              className="w-40 bg-white border border-gray-300 rounded-full py-1.5 pl-3 pr-8 text-xs focus:outline-none focus:ring-1 focus:ring-purple-500"
-            />
-            <button className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-600 hover:text-gray-900 p-0.5 rounded-full" aria-label="Search">
-              <SearchIcon className="w-3 h-3" />
-            </button>
-          </div>
+          
+          {/* Mega Menu Dropdown */}
+          {megaMenuCategory && <MegaMenuContent category={megaMenuCategory} />}
         </div>
-      </div>
+      )}
 
-      {/* -------------------- Mobile Menu (Overlay and Sidebar) -------------------- */}
+      {/* -------------------- Mobile Menu -------------------- */}
 
       {/* Overlay */}
       {isMenuOpen && (

@@ -191,7 +191,8 @@ const handleCouponApply = async () => {
             
             // Enrollment info
             status: 'in progress',
-            couponCode: couponCode.trim()
+            couponCode: couponCode.trim(),
+            courseId: course._id
         };
 
         console.log('Sending enrollment data:', enrollmentData);

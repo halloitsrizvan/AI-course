@@ -9,38 +9,40 @@ function MyCourses() {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!user) {
+  // useEffect(() => {
+  //   if (!user) {
+  //     setLoading(false);
+  //     return;
+  //   }
+
+  //   try {
+  //     setLoading(true);
+  //     axios.get('http://localhost:4000/course-users').then((res) => {
+  //       const enrolledCourses = res.data.filter((crs) => crs.userEmail === user.email);
+  //       setCourses(enrolledCourses);
+  //       setLoading(false);
+  //     }).catch((err) => {
+  //       console.log('API Error:', err);
+  //       setLoading(false);
+  //     });
+  //   } catch (error) {
+  //     console.log('Unexpected Error:', error);
+  //     setLoading(false);
+  //   }
+  // }, [user]);
+  useEffect(()=>{
+
+    axios.get('http://localhost:4000/course-users').then((res)=>{
+      const enrolledCourses = res.data.filter((crs)=>crs.userEmail === user.email);
+      setCourses(enrolledCourses);
       setLoading(false);
-      return;
-    }
-    const fetchCourses = async () => {
-      try {
-        setLoading(true);
-        const res = await axios.get('http://localhost:4000/course-users');
-        const enrolledCourses = res.data.filter((crs) => crs.userEmail === user.email);
-        setCourses(enrolledCourses);
-      } catch (err) {
-        console.log('API Error:', err);
-      } finally {
-        setLoading(false);
-      }
-    }
+    }).catch((err)=>{
+      console.log('API Error:',err);
+      setLoading(false);
+    })
+  },[user.email])
 
-    
-  }, [user]);
 
-  if (loading) {
-    return (
-      <div>
-
-        <Header/>
-      <div className="min-h-screen flex items-center justify-center text-gray-600 text-lg">
-        Loading your courses...
-      </div>
-      </div>
-    );
-  }
 
   if (!user) {
     return (
@@ -53,19 +55,30 @@ function MyCourses() {
     );
   }
 
-  if (courses.length === 0) {
+  if (loading) {
+    return (
+      <div>
+        <Header/>
+        <div className="min-h-screen flex items-center justify-center text-gray-600 text-lg">
+          Loading your courses...
+        </div>
+      </div>
+    );
+  }
+
+  if (!courses || courses.length === 0) {
     return (
       <div>
         <Header />
         <div className="min-h-screen flex flex-col items-center justify-center text-gray-600 text-lg">
-          You haven’t enrolled in any courses yet.
+          You haven't enrolled in any courses yet.
         </div>
       </div>
     );
   }
 
   return (
-    <div >
+    <div>
       <Header />
       <MyCourseData course={courses} />
     </div>
