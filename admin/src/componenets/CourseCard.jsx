@@ -1,9 +1,13 @@
 import React from 'react'
 import { Edit3, Users, Star, Calendar } from 'lucide-react'
+import { useNavigate } from 'react-router-dom';
 
 function CourseCard({ course }) {
+  const navigate = useNavigate();
   return (
-    <div className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:-translate-y-1 cursor-pointer">
+    <div className="group bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:-translate-y-1 cursor-pointer"
+    onClick={()=>navigate(`/courses-view/${course._id}`)}
+    >
       {/* Image Section */}
       <div className="relative w-full  overflow-hidden" style={{height:"15rem"}}>
         <img 

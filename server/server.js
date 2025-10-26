@@ -9,6 +9,7 @@ const mongoDB = process.env.MONGO_URL
 const usersRoutes = require('./routes/user')
 const coursesRoutes = require('./routes/courseRoutes')
 const courseUsersRoutes = require('./routes/courseUsers')
+const couponRouter = require('./routes/couponRouter')
 
 const app = express();
 app.use(cors())
@@ -23,6 +24,8 @@ app.use((req,res,next)=>{
 app.use('/users',usersRoutes) 
 app.use('/courses',coursesRoutes)
 app.use('/course-users',courseUsersRoutes)
+app.use('/coupons',couponRouter)
+
 mongoose.connect(mongoDB)
     .then(()=>{
         app.listen(port,(req,res)=>{

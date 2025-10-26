@@ -68,6 +68,10 @@ function MyCourseData({course}) {
             
             <span className="font-medium">Continue</span>
           </button>
+          {/* <button className="flex items-center space-x-2 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 px-4 py-2 rounded-lg transition-all duration-200 group-hover:bg-indigo-100">
+            
+            <span className="font-medium">Knew more</span>
+          </button> */}
         </div>
       </div>
     </div>

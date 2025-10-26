@@ -558,4 +558,4 @@ function CourseDetailed({ courses }) {
     );
 }
 
-export default CourseDetailed;
+export default CourseCom;

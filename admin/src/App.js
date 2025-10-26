@@ -7,6 +7,7 @@ import UsersView from "./componenets/UsersView";
 import CourseForm from "./componenets/CourseForm";
 import CouponManageView from "./pages/CouponManageView";
 import axios from "axios";
+import CourseDetailed from "./componenets/CourseDetailed";
 
 
 // Example mock data
@@ -137,6 +138,10 @@ function App() {
             <Route
               path="/courses"
               element={<CoursesView courses={courses} />}
+            />
+            <Route
+              path="/courses-view/:id"
+              element={<CourseDetailed courses={courses} />}
             />
             <Route
               path="/add-course"

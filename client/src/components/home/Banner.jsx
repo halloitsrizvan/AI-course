@@ -12,7 +12,7 @@ const SLIDES = [
     title: "Ready to accelerate your career?",
     description: "Explore hundreds of top-rated courses and gain in-demand skills tailored for modern industry needs.",
     buttonText: "Browse All Courses",
-    image: "images/banner2.png",
+    image: "images/banner11.png",
   },
   {
     title: "Expand your AI-powered journey",

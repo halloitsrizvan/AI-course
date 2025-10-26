@@ -81,86 +81,171 @@ function ShoppingCart({ course }) {
         window.open(whatsappUrl, '_blank');
     };
 
+    // Add this state at the top of your component
+const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+
+// Add this popup component before the return statement
+const SuccessPopup = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-2xl p-8 max-w-md mx-4 text-center">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="w-8 h-8 text-green-600" />
+            </div>
+            <h3 className="text-2xl font-bold text-gray-900 mb-2">Congratulations! 🎉</h3>
+            <p className="text-gray-600 mb-6">
+                You have successfully enrolled in <strong>{course.title}</strong>
+            </p>
+            <button
+                onClick={() => {
+                    setShowSuccessPopup(false);
+                    navigate('/my-courses');
+                }}
+                className="w-full bg-green-600 text-white py-3 px-4 rounded-xl font-semibold hover:bg-green-700 transition-colors"
+            >
+                Go to My Courses
+            </button>
+        </div>
+    </div>
+);
     // Handler for applying coupon
-    const handleCouponApply = async () => {
-        if (!user) {
-            navigate('/login');
-            return;
-        }
+// Handler for applying coupon
+const handleCouponApply = async () => {
+    if (!user) {
+        navigate('/login');
+        return;
+    }
 
-        if (!couponCode.trim()) {
-            setError('Please enter a coupon code');
-            return;
-        }
+    if (!couponCode.trim()) {
+        setError('Please enter a coupon code');
+        return;
+    }
 
-        setIsLoading(true);
-        setError('');
+    setIsLoading(true);
+    setError('');
 
+    try {
+        // Step 1: Check if user already enrolled in this course (Frontend check)
         try {
-            // Prepare enrollment data
-            const enrollmentData = {
-                // Copy all course properties
-                ...course,
-                // Add user information
-                userId: user._id,
-                userName: user.name,
-                userEmail: user.email,
-                // Enrollment specific fields
-                status: 'enrolled',
-                couponCode: couponCode.trim(),
-                // Initialize progress tracking
-                progress: {
-                    completedParts: 0,
-                    totalParts: course.course?.length || 0,
-                    completionPercentage: 0,
-                    lastActivity: new Date(),
-                    startedAt: new Date()
-                },
-                // Initialize quiz results
-                quizResults: {
-                    attempts: [],
-                    bestScore: 0,
-                    bestPercentage: 0,
-                    totalAttempts: 0,
-                    passedAttempts: 0,
-                    lastAttempt: null
-                },
-                // Initialize certificate
-                certificate: {
-                    issued: false,
-                    issuedAt: null,
-                    certificateId: null,
-                    finalScore: 0,
-                    completionDate: null
-                },
-                // Update course parts status
-                course: course.course?.map((part, index) => ({
-                    ...part,
-                    status: index === 0 ? 'unlocked' : 'locked',
-                    completedAt: null
-                })) || []
-            };
-
-            console.log('Sending enrollment data:', enrollmentData);
-
-            // FIX: Send enrollmentData directly, not wrapped in an object
-            const response = await axios.post('http://localhost:4000/course-users/enroll', enrollmentData);
-            
-            console.log('Enrollment successful:', response.data);
-            alert('🎉 Enrollment successful! Redirecting to your courses...');
-            navigate('/my-courses');
-            
-        } catch (err) {
-            console.error('Enrollment error:', err);
-            setError(
-                err.response?.data?.error || 
-                err.response?.data?.message || 
-                'Failed to enroll. Please try again.'
+            const userCoursesResponse = await axios.get(`http://localhost:4000/course-users/user/${user.email}`);
+            const existingCourse = userCoursesResponse.data.find(userCourse => 
+                userCourse.title === course.title || 
+                userCourse._id === course._id
             );
-        } finally {
-            setIsLoading(false);
+
+            if (existingCourse) {
+                setError('You are already enrolled in this course!');
+                return;
+            }
+        } catch (enrollErr) {
+            console.log('Enrollment check failed, continuing...', enrollErr);
+            // Continue even if enrollment check fails
         }
-    };
+
+        // Step 2: Try coupon validation (with fallback)
+        let couponValid = true;
+        
+        try {
+            const validationResponse = await axios.post('http://localhost:4000/coupons/validate', {
+                code: couponCode.trim(),
+                userEmail: user.email,
+                courseId: course._id // Add courseId for validation
+            });
+
+            if (!validationResponse.data.success) {
+                couponValid = false;
+                setError(validationResponse.data.message);
+                return;
+            }
+        } catch (couponErr) {
+            console.log('Coupon validation failed, proceeding with basic enrollment', couponErr);
+            // If coupon validation fails, we'll proceed with basic enrollment
+            // but show a warning
+          
+        }
+
+        // Step 3: Prepare enrollment data (simplified)
+        const enrollmentData = {
+            // Course basic info
+            title: course.title,
+            description: course.description,
+            exercises: course.exercises,
+            titleOfCreator: course.titleOfCreator,
+            enrollment: course.enrollment,
+            price: course.price,
+            imageUrl: course.imageUrl,
+            imageUrl2: course.imageUrl2,
+            createdBy: course.createdBy,
+            totalLength: course.totalLength,
+            section: course.section,
+            published: course.published,
+            whatYoullLearn: course.whatYoullLearn,
+            skillsThatMatter: course.skillsThatMatter,
+            curriculumCard: course.curriculumCard,
+            course: course.course,
+            quizQuestions: course.quizQuestions,
+            
+            // User info
+            userId: user._id,
+            userName: user.name,
+            userEmail: user.email,
+            
+            // Enrollment info
+            status: 'in progress',
+            couponCode: couponCode.trim()
+        };
+
+        console.log('Sending enrollment data:', enrollmentData);
+
+        // Step 4: Enroll in the course
+        const enrollmentResponse = await axios.post('http://localhost:4000/course-users/enroll', enrollmentData);
+        
+        if (enrollmentResponse.data) {
+            console.log('Enrollment successful:', enrollmentResponse.data);
+            
+            // Try to mark coupon as used (optional)
+            try {
+                await axios.post('http://localhost:4000/coupons/apply', {
+                    code: couponCode.trim(),
+                    userEmail: user.email,
+                    courseId: course._id
+                });
+                console.log('Coupon marked as used');
+            } catch (applyErr) {
+                console.log('Could not mark coupon as used', applyErr);
+            }
+
+            // Show success popup
+            setShowSuccessPopup(true);
+        }
+        
+    } catch (err) {
+        console.error('Enrollment error:', err);
+        console.error('Error response:', err.response?.data);
+        
+        // Better error handling
+        if (err.response?.status === 400) {
+            if (err.response.data?.error?.includes('E11000') || err.response.data?.error?.includes('duplicate')) {
+                setError('You are already enrolled in this course!');
+            } else if (err.response.data?.error?.includes('validation')) {
+                setError('Invalid data. Please try again.');
+            } else {
+                setError(err.response.data?.error || 'Invalid request. Please try again.');
+            }
+        } else if (err.response?.status === 500) {
+            if (err.response.data?.error?.includes('E11000')) {
+                setError('You are already enrolled in this course!');
+            } else {
+                setError('Server error. Please try again later.');
+            }
+        } else if (err.code === 'ERR_NETWORK') {
+            setError('Network error. Please check your connection.');
+        } else {
+            setError('Failed to enroll. Please try again.');
+        }
+    } finally {
+        setIsLoading(false);
+    }
+};
 
     const originalTotal = course.price;
     const total = course.price - 199; 
@@ -168,6 +253,7 @@ function ShoppingCart({ course }) {
     
     return (
         <div className='min-h-screen bg-gray-50 font-sans antialiased'>
+             {showSuccessPopup && <SuccessPopup />}
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <h1 className="text-xl sm:text-4xl font-extrabold text-gray-900 mb-10">
                     Shopping Cart

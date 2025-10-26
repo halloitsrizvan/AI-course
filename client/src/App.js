@@ -10,6 +10,7 @@ import Signup from './pages/Signup';
 import Login from './pages/Login';
 import axios from 'axios';
 import MyCourses from './pages/MyCourses';
+import MyLearnig from './pages/MyLearnig';
 function App() {
   const [course,setCourse] = useState([]);
   useEffect(()=>{
@@ -33,6 +34,7 @@ function App() {
           <Route path="/login" element={<Login/>}/>
           <Route path="/certificate" element={<Certificate/>}/>
           <Route path="/my-courses" element={<MyCourses/>}/>
+          <Route path="/my-learning" element={<MyLearnig/>}/>
           </Routes>
         </BrowserRouter>
     </div>
